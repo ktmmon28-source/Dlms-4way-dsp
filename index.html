@@ -187,7 +187,43 @@ button:active {
 <div class="file-name" id="fileName" style="margin-top:9px">Belum ada file dipilih</div>
 <div class="transport"><div class="time" id="clock">00:00 / 00:00</div><button id="mute">MUTE</button><label class="switch"><input id="loop" type="checkbox"> LOOP</label></div>
 <input id="seek" class="seek" type="range" min="0" max="1000" value="0" disabled>
-<div style="margin-top:10px"><div class="row" style="justify-content:space-between"><label>INPUT LEVEL</label><span class="value" id="inDb">-∞ dB</span></div><div class="meter"><i id="inMeter"></i></div></div>
+<!-- AS AUDIO STEREO VU METER -->
+<section class="stereo-meters">
+
+  <div class="meter-panel">
+    <div class="top">
+      <label>INPUT LEFT</label>
+      <span class="value" id="inDbL">-∞ dB</span>
+    </div>
+    <div class="meter"><i id="inMeterL"></i></div>
+  </div>
+
+  <div class="meter-panel">
+    <div class="top">
+      <label>INPUT RIGHT</label>
+      <span class="value" id="inDbR">-∞ dB</span>
+    </div>
+    <div class="meter"><i id="inMeterR"></i></div>
+  </div>
+
+  <div class="meter-panel">
+    <div class="top">
+      <label>OUTPUT LEFT</label>
+      <span class="value" id="outDbL">-∞ dB</span>
+    </div>
+    <div class="meter"><i id="outMeterL"></i></div>
+  </div>
+
+  <div class="meter-panel">
+    <div class="top">
+      <label>OUTPUT RIGHT</label>
+      <span class="value" id="outDbR">-∞ dB</span>
+    </div>
+    <div class="meter"><i id="outMeterR"></i></div>
+  </div>
+
+</section>
+<!-- END AS AUDIO STEREO VU METER -->
 <p class="note">Tekan PLAY untuk mengaktifkan audio. Pada Android, browser mungkin meminta izin audio atau memerlukan sentuhan pengguna terlebih dahulu.</p>
 
 <div class="control" style="margin-top:14px">
@@ -229,7 +265,6 @@ dan Polarity. Filter Linkwitz-Riley 24 dB/oct.
 <div class="control"><div class="top"><label>MASTER GAIN</label><span class="value" id="masterVal">0 dB</span></div><input id="master" type="range" min="-30" max="6" value="0" step=".5"></div>
 <div class="control" style="margin-top:9px"><div class="top"><label>LIMITER THRESHOLD</label><span class="value" id="limVal">-1 dB</span></div><input id="limiter" type="range" min="-18" max="0" value="-1" step=".5"></div>
 <div class="control" style="margin-top:9px"><div class="top"><label>COMPRESSOR RATIO</label><span class="value" id="compVal">4:1</span></div><input id="ratio" type="range" min="1" max="20" value="4" step=".5"></div>
-<div style="margin-top:12px"><div class="row" style="justify-content:space-between"><label>OUTPUT LEVEL</label><span class="value" id="outDb">-∞ dB</span></div><div class="meter"><i id="outMeter"></i></div></div>
 </section>
 <section class="panel">
 <h2>05 / SPECTRUM ANALYZER</h2><canvas id="spectrum" width="600" height="150"></canvas>
