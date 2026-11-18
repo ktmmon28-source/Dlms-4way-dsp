@@ -160,7 +160,12 @@ button:active {
     gap: 7px;
   }
 }
-
+.grid4{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+}
+@media(max-width:600px){
+ .grid4{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
@@ -204,8 +209,12 @@ button:active {
 <div class="eqgrid" id="eqGrid"></div>
 </section>
 <section class="panel">
-<h2>03 / 4-WAY CROSSOVER & OUTPUT</h2>
-<p class="note">Frekuensi pembagian jalur: SUB sampai SUB/LOW, LOW ke MID, MID ke HIGH. Filter Linkwitz-Riley 24 dB/oct (dua biquad Butterworth per sisi).</p>
+<h2>03 / STEREO 2-CHANNEL CROSSOVER</h2>
+<p class="note">
+LEFT dan RIGHT diproses secara terpisah.
+Masing-masing memiliki HPF, LPF, Gain, Delay,
+dan Polarity. Filter Linkwitz-Riley 24 dB/oct.
+</p>
 <div class="grid4" id="channels"></div>
 </section>
 <section class="panel">
@@ -237,19 +246,60 @@ const $ = id => document.getElementById(id);
 const freqs=[31,63,125,250,500,1000,2000,4000,8000,16000];
 let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedAt=0, pausedAt=0;
 let inputGain, eqNodes=[], splitNodes=[], channelNodes=[], masterGain, compressor, limiter, analyser, outputGain, raf=0;
-const names=['SUB','LOW','MID','HIGH'];
+const names=['LEFT','RIGHT'];
 const defaults=[
- {hp:25,lp:80,gain:0,delay:0,pol:false},
- {hp:80,lp:250,gain:0,delay:0,pol:false},
- {hp:250,lp:2500,gain:0,delay:0,pol:false},
- {hp:2500,lp:18000,gain:0,delay:0,pol:false}
+ {hp:25,lp:18000,gain:0,delay:0,pol:false},
+ {hp:25,lp:18000,gain:0,delay:0,pol:false}
 ];
 let channelSettings=defaults.map(x=>({...x}));
 const dbLin=db=>Math.pow(10,db/20);
 const fmtTime=s=>{s=Math.max(0,Math.floor(s||0));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 function makeUI(){
  $('eqGrid').innerHTML=freqs.map((f,i)=>`<div class="eqband"><strong>${f>=1000?(f/1000)+'k':f} Hz</strong><input aria-label="EQ ${f} Hz" type="range" min="-12" max="12" step=".5" value="0" data-eq="${i}"><output>0 dB</output></div>`).join('');
- $('channels').innerHTML=names.map((n,i)=>`<div class="channel" data-ch="${i}"><div class="channelhead"><b>${n}</b><span class="tag">OUT ${i+1}</span></div><div class="smallgrid"><div><label>HPF Hz</label><input type="number" min="10" max="18000" value="${defaults[i].hp}" data-p="hp"></div><div><label>LPF Hz</label><input type="number" min="20" max="20000" value="${defaults[i].lp}" data-p="lp"></div></div><div class="control" style="margin-top:9px"><div class="top"><label>OUTPUT GAIN</label><span class="value" data-val="gain">0 dB</span></div><input type="range" min="-30" max="6" step=".5" value="0" data-p="gain"></div><div class="control" style="margin-top:8px"><div class="top"><label>DELAY (ms)</label><span class="value" data-val="delay">0 ms</span></div><input type="range" min="0" max="20" step=".1" value="0" data-p="delay"></div><label class="switch" style="margin-top:9px"><input type="checkbox" data-p="pol"> POLARITY INVERT</label></div>`).join('');
+ $('channels').innerHTML=names.map((n,i)=>`
+<div class="channel" data-ch="${i}">
+ <div class="channelhead">
+  <b>${n}</b>
+  <span class="tag">${i===0?'OUT L':'OUT R'}</span>
+ </div>
+
+ <div class="smallgrid">
+  <div>
+   <label>HPF Hz</label>
+   <input type="number" min="10" max="18000"
+   value="${defaults[i].hp}" data-p="hp">
+  </div>
+  <div>
+   <label>LPF Hz</label>
+   <input type="number" min="20" max="20000"
+   value="${defaults[i].lp}" data-p="lp">
+  </div>
+ </div>
+
+ <div class="control" style="margin-top:9px">
+  <div class="top">
+   <label>OUTPUT GAIN</label>
+   <span class="value" data-val="gain">0 dB</span>
+  </div>
+  <input type="range" min="-30" max="6"
+   step=".5" value="0" data-p="gain">
+ </div>
+
+ <div class="control" style="margin-top:8px">
+  <div class="top">
+   <label>DELAY (ms)</label>
+   <span class="value" data-val="delay">0 ms</span>
+  </div>
+  <input type="range" min="0" max="20"
+   step=".1" value="0" data-p="delay">
+ </div>
+
+ <label class="switch" style="margin-top:9px">
+  <input type="checkbox" data-p="pol">
+  POLARITY INVERT
+ </label>
+</div>
+`).join('');
 }
 makeUI();
 function setStatus(t,ok=true){$('status').textContent=(ok?'● ':'● ')+t;$('status').style.color=ok?'var(--green)':'var(--orange)'}
@@ -261,33 +311,101 @@ async function initAudio(){
  inputGain=ctx.createGain();
  let prev=inputGain;
  freqs.forEach((f,i)=>{let n=ctx.createBiquadFilter();n.type='peaking';n.frequency.value=f;n.Q.value=1.1;n.gain.value=0;prev.connect(n);prev=n;eqNodes.push(n)});
- splitNodes=names.map(()=>({}));
- const edges=[channelSettings[0].lp,channelSettings[1].lp,channelSettings[2].lp];
- // Parallel four-way split: each bus receives the EQ signal, then its own HPF/LPF.
- const eqOut=prev;
- channelSettings.forEach((s,i)=>{
-   const hp1=ctx.createBiquadFilter(),hp2=ctx.createBiquadFilter(),lp1=ctx.createBiquadFilter(),lp2=ctx.createBiquadFilter();
-   [hp1,hp2].forEach(n=>{n.type='highpass';n.frequency.value=s.hp;n.Q.value=Math.SQRT1_2});
-   [lp1,lp2].forEach(n=>{n.type='lowpass';n.frequency.value=s.lp;n.Q.value=Math.SQRT1_2});
-   const delay=ctx.createDelay(.05), gain=ctx.createGain(), invert=ctx.createGain(), busAnalyser=ctx.createAnalyser();
-   busAnalyser.fftSize=256;gain.gain.value=dbLin(s.gain);invert.gain.value=1;
-   eqOut.connect(hp1);hp1.connect(hp2);hp2.connect(lp1);lp1.connect(lp2);lp2.connect(delay);delay.connect(gain);gain.connect(invert);invert.connect(busAnalyser);
-   splitNodes[i]={hp1,hp2,lp1,lp2,delay,gain,invert,busAnalyser};
+ 
+// PEMISAH AUDIO STEREO LEFT / RIGHT
+const stereoSplit=ctx.createChannelSplitter(2);
+const stereoMerge=ctx.createChannelMerger(2);
+
+const eqOut=prev;
+eqOut.connect(stereoSplit);
+
+splitNodes=names.map(()=>({}));
+
+channelSettings.forEach((s,i)=>{
+
+ const hp1=ctx.createBiquadFilter();
+ const hp2=ctx.createBiquadFilter();
+ const lp1=ctx.createBiquadFilter();
+ const lp2=ctx.createBiquadFilter();
+
+ [hp1,hp2].forEach(n=>{
+  n.type='highpass';
+  n.frequency.value=s.hp;
+  n.Q.value=Math.SQRT1_2;
  });
- // Stereo monitor mix of the four independently processed buses.
- const sum=ctx.createGain();sum.gain.value=.25;
- splitNodes.forEach(b=>b.busAnalyser.connect(sum));
- masterGain=ctx.createGain();masterGain.gain.value=1;
- compressor=ctx.createDynamicsCompressor();compressor.threshold.value=-18;compressor.knee.value=6;compressor.ratio.value=4;compressor.attack.value=.005;compressor.release.value=.15;
- limiter=ctx.createDynamicsCompressor();limiter.threshold.value=-1;limiter.knee.value=0;limiter.ratio.value=20;limiter.attack.value=.001;limiter.release.value=.08;
- analyser=ctx.createAnalyser();analyser.fftSize=1024;
- outputGain=ctx.createGain();outputGain.gain.value=1;
- sum.connect(masterGain);masterGain.connect(compressor);compressor.connect(limiter);limiter.connect(analyser);analyser.connect(outputGain);outputGain.connect(ctx.destination);
+
+ [lp1,lp2].forEach(n=>{
+  n.type='lowpass';
+  n.frequency.value=s.lp;
+  n.Q.value=Math.SQRT1_2;
+ });
+
+ const delay=ctx.createDelay(.05);
+ const gain=ctx.createGain();
+ const invert=ctx.createGain();
+ const busAnalyser=ctx.createAnalyser();
+
+ busAnalyser.fftSize=256;
+ gain.gain.value=dbLin(s.gain);
+ invert.gain.value=1;
+
+ // Ambil kanal L atau R secara terpisah
+ stereoSplit.connect(hp1,i);
+
+ hp1.connect(hp2);
+ hp2.connect(lp1);
+ lp1.connect(lp2);
+ lp2.connect(delay);
+ delay.connect(gain);
+ gain.connect(invert);
+ invert.connect(busAnalyser);
+
+ // Kembalikan ke kanal stereo yang sesuai
+ busAnalyser.connect(stereoMerge,0,i);
+
+ splitNodes[i]={
+  hp1,hp2,lp1,lp2,
+  delay,gain,invert,busAnalyser
+ };
+});
+
+// MASTER DAN DYNAMICS
+masterGain=ctx.createGain();
+masterGain.gain.value=1;
+
+compressor=ctx.createDynamicsCompressor();
+compressor.threshold.value=-18;
+compressor.knee.value=6;
+compressor.ratio.value=4;
+compressor.attack.value=.005;
+compressor.release.value=.15;
+
+limiter=ctx.createDynamicsCompressor();
+limiter.threshold.value=-1;
+limiter.knee.value=0;
+limiter.ratio.value=20;
+limiter.attack.value=.001;
+limiter.release.value=.08;
+
+analyser=ctx.createAnalyser();
+analyser.fftSize=1024;
+
+outputGain=ctx.createGain();
+outputGain.gain.value=1;
+
+// OUTPUT STEREO L/R
+stereoMerge.connect(masterGain);
+masterGain.connect(compressor);
+compressor.connect(limiter);
+limiter.connect(analyser);
+analyser.connect(outputGain);
+outputGain.connect(ctx.destination);
+ masterGain.connect(compressor);compressor.connect(limiter);limiter.connect(analyser);analyser.connect(outputGain);outputGain.connect(ctx.destination);
  setStatus('AUDIO ENGINE AKTIF');
 }
 function updateEQ(){document.querySelectorAll('[data-eq]').forEach(el=>{let i=+el.dataset.eq,v=+el.value; if(eqNodes[i])eqNodes[i].gain.setTargetAtTime(v,ctx.currentTime,.015);el.nextElementSibling.value=v.toFixed(1)+' dB';el.nextElementSibling.textContent=v.toFixed(1)+' dB'})}
 function updateChannel(i){
- const card=document.querySelector(`[data-ch="${i}"]`),s=channelSettings[i],b=splitNodes[i];if(!b.hp1)return;
+ const card=document.querySelector(`[data-ch="${i}"]`),s=channelSettings[i],b=splitNodes[i];if(!b || !b.hp1)return;
  s.hp=+card.querySelector('[data-p="hp"]').value;s.lp=+card.querySelector('[data-p="lp"]').value;
  s.gain=+card.querySelector('[data-p="gain"]').value;s.delay=+card.querySelector('[data-p="delay"]').value;s.pol=card.querySelector('[data-p="pol"]').checked;
  const hp=Math.max(10,Math.min(18000,s.hp)),lp=Math.max(hp+10,Math.min(20000,s.lp));
@@ -371,7 +489,13 @@ function snapshot(){return {eq:[...document.querySelectorAll('[data-eq]')].map(e
 function applyPreset(p){
  if(!p)return;
  document.querySelectorAll('[data-eq]').forEach((e,i)=>e.value=p.eq?.[i]??0);updateEQ();
- if(p.channels)channelSettings=p.channels.map(s=>({...s}));
+ const savedChannels=
+ Array.isArray(p.channels)&&p.channels.length===2
+ ? p.channels : defaults;
+
+channelSettings=defaults.map((d,i)=>({
+ ...d,...(savedChannels[i]||{})
+}));
  channelSettings.forEach((s,i)=>{let card=document.querySelector(`[data-ch="${i}"]`);Object.keys(s).forEach(k=>{let el=card.querySelector(`[data-p="${k}"]`);if(el){if(el.type==='checkbox')el.checked=!!s[k];else el.value=s[k]}});updateChannel(i)});
  $('master').value=p.master??0;$('limiter').value=p.limiter??-1;$('ratio').value=p.ratio??4;
  $('master').dispatchEvent(new Event('input'));$('limiter').dispatchEvent(new Event('input'));$('ratio').dispatchEvent(new Event('input'));
