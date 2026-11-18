@@ -365,10 +365,11 @@ channelSettings.forEach((s,i)=>{
  lp2.connect(delay);
  delay.connect(gain);
  gain.connect(invert);
- invert.connect(busAnalyser);
+ // Kirim audio langsung ke output stereo
+invert.connect(stereoMerge,0,i);
 
- // Kembalikan ke kanal stereo yang sesuai
- busAnalyser.connect(stereoMerge,0,i);
+// Analyser hanya mengambil salinan sinyal untuk pengukuran
+invert.connect(busAnalyser);
 
  splitNodes[i]={
   hp1,hp2,lp1,lp2,
