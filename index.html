@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101722">
-<title>DLMS 4-Way DSP</title>
+<title>DLMS by AS AUDIO</title>
 <style>
 :root{color-scheme:dark;--bg:#0b111a;--panel:#141e2b;--panel2:#1b2939;--line:#2a3b50;--txt:#eaf1f8;--muted:#91a4b9;--cyan:#36d6e7;--green:#6ee7a8;--orange:#ffb454;--red:#ff657a}
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#0b111a,#101b29 65%,#0b111a);color:var(--txt);font:14px system-ui,-apple-system,Segoe UI,sans-serif}
@@ -43,6 +43,124 @@ canvas{width:100%;height:100px;background:#08111b;border:1px solid var(--line);b
 footer{text-align:center;color:#71869c;font-size:11px;padding:4px 12px 22px}
 @media(min-width:720px){.grid4{grid-template-columns:repeat(4,minmax(0,1fr))}.eqgrid{grid-template-columns:repeat(10,minmax(0,1fr))}.layout{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.layout .full{grid-column:1/-1}}
 @media(max-width:390px){.eqgrid{grid-template-columns:repeat(5,minmax(0,1fr))}.transport{grid-template-columns:1fr 1fr}.transport .time{grid-column:1/-1}}
+
+/* DLMS by AS AUDIO - PROFESSIONAL THEME */
+:root {
+  --bg: #080d13;
+  --panel: #111b26;
+  --line: #263746;
+  --txt: #eaf3fa;
+  --accent: #29d9ed;
+  --muted: #8496a8;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at top, #172c3b 0%, #080d13 65%);
+  color: var(--txt);
+  font-family: Arial, sans-serif;
+  margin: 0;
+}
+
+section {
+  width: 100%;
+}
+
+h1, h2, h3 {
+  color: #f0f8ff;
+  letter-spacing: 1px;
+}
+
+.control {
+  background: linear-gradient(145deg, #172431, #0d151f);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 15px;
+  margin-bottom: 14px;
+  box-shadow: 0 5px 18px #0006;
+}
+
+button {
+  background: #1b2c3b;
+  color: #eafaff;
+  border: 1px solid #34495a;
+  border-radius: 9px;
+  padding: 11px 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button.primary {
+  background: linear-gradient(135deg, #087f9c, #19c5dd);
+  color: #06131a;
+  border: none;
+  box-shadow: 0 3px 12px #12c9e533;
+}
+
+input, select {
+  background: #0a131d;
+  color: #eafaff;
+  border: 1px solid #304252;
+  border-radius: 8px;
+  padding: 10px;
+  max-width: 100%;
+}
+
+.note {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+canvas {
+  max-width: 100%;
+  border-radius: 9px;
+  background: #080e16;
+}
+
+iframe {
+  border-radius: 10px;
+}
+
+.row {
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+@media (max-width: 600px) {
+  body {
+    font-size: 14px;
+  }
+
+  .control {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  h1 {
+    font-size: 23px;
+  }
+
+  h2 {
+    font-size: 19px;
+  }
+
+  button {
+    min-height: 40px;
+  }
+
+  .row {
+    gap: 7px;
+  }
+}
+
 </style>
 </head>
 <body>
