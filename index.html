@@ -400,6 +400,7 @@ analyser.fftSize=1024;
 outputGain=ctx.createGain();
 outputGain.gain.value=1;
 
+
 // OUTPUT STEREO L/R
 stereoMerge.connect(masterGain);
 masterGain.connect(compressor);
@@ -407,8 +408,9 @@ compressor.connect(limiter);
 limiter.connect(analyser);
 analyser.connect(outputGain);
 outputGain.connect(ctx.destination);
- masterGain.connect(compressor);compressor.connect(limiter);limiter.connect(analyser);analyser.connect(outputGain);outputGain.connect(ctx.destination);
- setStatus('AUDIO ENGINE AKTIF');
+
+setStatus('AUDIO ENGINE AKTIF');
+
 }
 function updateEQ(){document.querySelectorAll('[data-eq]').forEach(el=>{let i=+el.dataset.eq,v=+el.value; if(eqNodes[i])eqNodes[i].gain.setTargetAtTime(v,ctx.currentTime,.015);el.nextElementSibling.value=v.toFixed(1)+' dB';el.nextElementSibling.textContent=v.toFixed(1)+' dB'})}
 function updateChannel(i){
