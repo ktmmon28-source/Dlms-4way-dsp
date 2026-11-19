@@ -356,9 +356,9 @@ async function initAudio(){
  inputGain=ctx.createGain();
 
 // SPLIT INPUT STEREO UNTUK METER
-const inputMeterSplit=ctx.createChannelSplitter(2);
-const inputMeterL=ctx.createAnalyser();
-const inputMeterR=ctx.createAnalyser();
+inputMeterSplit=ctx.createChannelSplitter(2);
+inputMeterL=ctx.createAnalyser();
+inputMeterR=ctx.createAnalyser();
 
 inputMeterL.fftSize=256;
 inputMeterR.fftSize=256;
@@ -458,9 +458,9 @@ stereoMerge.connect(masterGain);
 masterGain.connect(compressor);
 compressor.connect(limiter);
 // OUTPUT STEREO METER L/R
-const outputMeterSplit=ctx.createChannelSplitter(2);
-const outputMeterL=ctx.createAnalyser();
-const outputMeterR=ctx.createAnalyser();
+outputMeterSplit=ctx.createChannelSplitter(2);
+outputMeterL=ctx.createAnalyser();
+outputMeterR=ctx.createAnalyser();
 
 outputMeterL.fftSize=256;
 outputMeterR.fftSize=256;
