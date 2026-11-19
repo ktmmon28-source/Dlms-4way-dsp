@@ -288,7 +288,10 @@ const $ = id => document.getElementById(id);
 const freqs=[31,63,125,250,500,1000,2000,4000,8000,16000];
 let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedAt=0, pausedAt=0;
 let inputGain, eqNodes=[], splitNodes=[], channelNodes=[], masterGain, compressor, limiter, analyser, outputGain, raf=0;
-const names=['LEFT','RIGHT'];
+let inputMeterL, inputMeterR;
+let outputMeterL, outputMeterR;
+let inputMeterSplit, outputMeterSplit;
+  const names=['LEFT','RIGHT'];
 const defaults=[
  {hp:25,lp:18000,gain:0,delay:0,pol:false},
  {hp:25,lp:18000,gain:0,delay:0,pol:false}
