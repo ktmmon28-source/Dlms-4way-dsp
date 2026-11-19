@@ -454,6 +454,19 @@ outputGain.gain.value=1;
 stereoMerge.connect(masterGain);
 masterGain.connect(compressor);
 compressor.connect(limiter);
+// OUTPUT STEREO METER L/R
+const outputMeterSplit=ctx.createChannelSplitter(2);
+const outputMeterL=ctx.createAnalyser();
+const outputMeterR=ctx.createAnalyser();
+
+outputMeterL.fftSize=256;
+outputMeterR.fftSize=256;
+
+limiter.connect(outputMeterSplit);
+outputMeterSplit.connect(outputMeterL,0);
+outputMeterSplit.connect(outputMeterR,1);
+
+// Jalur audio utama tetap seperti semula
 limiter.connect(analyser);
 analyser.connect(outputGain);
 outputGain.connect(ctx.destination);
@@ -502,14 +515,37 @@ $('seek').oninput=e=>{if(!fileBuffer)return;let t=(+e.target.value/1000)*fileBuf
 $('seek').onchange=e=>{if(!fileBuffer)return;pausedAt=(+e.target.value/1000)*fileBuffer.duration;if(playing)startAt(pausedAt);else $('clock').textContent=fmtTime(pausedAt)+' / '+fmtTime(fileBuffer.duration)};
 $('mute').onclick=()=>{muted=!muted;if(outputGain)outputGain.gain.setTargetAtTime(muted?0:1,ctx.currentTime,.01);$('mute').textContent=muted?'UNMUTE':'MUTE'};
 $('loop').onchange=()=>{if(playing&&source)source.loop=$('loop').checked};
-function draw(){
+function readStereoMeter(node, dbId, meterId) {
+  const data = new Uint8Array(node.fftSize);
+  node.getByteTimeDomainData(data);
+
+  let sum = 0;
+  for (let x of data) {
+    const v = (x - 128) / 128;
+    sum += v * v;
+  }
+
+  const rms = Math.sqrt(sum / data.length);
+  const db = rms > 0 ? 20 * Math.log10(rms) : -90;
+
+  $(dbId).textContent = db <= -90 ? '-∞ dB' : db.toFixed(1) + ' dB';
+  $(meterId).style.width =
+    Math.max(0, Math.min(100, (db + 60) / 60 * 100)) + '%';
+  }
+  function draw(){
  if(!ctx||!playing)return;
  const now=Math.max(0,ctx.currentTime-startedAt),dur=fileBuffer.duration;
  if(now>=dur&&!$('loop').checked){stopSource();pausedAt=0;$('seek').value=0;$('clock').textContent=fmtTime(dur)+' / '+fmtTime(dur);return}
  $('clock').textContent=fmtTime(now)+' / '+fmtTime(dur);$('seek').value=Math.min(1000,now/dur*1000);
  const arr=new Uint8Array(analyser.fftSize);analyser.getByteTimeDomainData(arr);let sum=0;for(let x of arr){let v=(x-128)/128;sum+=v*v}
  const rms=Math.sqrt(sum/arr.length),db=rms>0?20*Math.log10(rms):-90;
- $('outDb').textContent=db.toFixed(1)+' dB';$('inDb').textContent=db.toFixed(1)+' dB';$('outMeter').style.width=Math.max(0,Math.min(100,(db+60)/60*100))+'%';$('inMeter').style.width=Math.max(0,Math.min(100,(db+60)/60*100))+'%';
+// INPUT STEREO
+readStereoMeter(inputMeterL,'inDbL','inMeterL');
+readStereoMeter(inputMeterR,'inDbR','inMeterR');
+
+// OUTPUT STEREO
+readStereoMeter(outputMeterL,'outDbL','outMeterL');
+readStereoMeter(outputMeterR,'outDbR','outMeterR');
  const c=$('spectrum'),g=c.getContext('2d'),data=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(data);g.clearRect(0,0,c.width,c.height);g.strokeStyle='#36d6e7';g.lineWidth=2;g.beginPath();
  for(let i=0;i<data.length;i++){let x=i/data.length*c.width,y=c.height-(data[i]/255)*c.height;if(i===0)g.moveTo(x,y);else g.lineTo(x,y)}g.stroke();
  raf=requestAnimationFrame(draw);
