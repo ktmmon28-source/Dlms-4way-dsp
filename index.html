@@ -513,13 +513,30 @@ function resetStereoMeters(){
     try{source.disconnect()}catch{}
     source=null;
   }
-
   playing=false;
   cancelAnimationFrame(raf);
-  resetStereoMeters();
-
   $('play').textContent='▶ PLAY';
-      }
+}
+
+async function startAt(offset=0){
+  await initAudio();
+  if(!fileBuffer)return;
+
+  stopSource();
+
+  source=ctx.createBufferSource();
+  source.buffer=fileBuffer;
+  source.loop=$('loop').checked;
+  source.connect(inputGain);
+  source.start(0,Math.min(offset,fileBuffer.duration));
+
+  startedAt=ctx.currentTime-offset;
+  playing=true;
+  $('play').textContent='❚❚ PAUSE';
+  $('stop').disabled=false;
+  draw();
+  }
+  
 $('audioFile').onchange=async e=>{
  const f=e.target.files[0];if(!f)return;
  try{setStatus('MEMUAT FILE');await initAudio();const buf=await f.arrayBuffer();fileBuffer=await ctx.decodeAudioData(buf);$('fileName').textContent=f.name+' • '+fileBuffer.numberOfChannels+' ch • '+(fileBuffer.sampleRate/1000).toFixed(1)+' kHz';$('play').disabled=false;$('stop').disabled=false;$('seek').disabled=false;$('seek').value=0;$('clock').textContent='00:00 / '+fmtTime(fileBuffer.duration);pausedAt=0;setStatus('FILE SIAP');}
