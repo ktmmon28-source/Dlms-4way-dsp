@@ -498,11 +498,28 @@ $('eqFlat').onclick=()=>{document.querySelectorAll('[data-eq]').forEach(e=>e.val
 $('master').oninput=e=>{if(masterGain)masterGain.gain.setTargetAtTime(dbLin(+e.target.value),ctx.currentTime,.02);$('masterVal').textContent=e.target.value+' dB'};
 $('limiter').oninput=e=>{if(limiter)limiter.threshold.setTargetAtTime(+e.target.value,ctx.currentTime,.02);$('limVal').textContent=e.target.value+' dB'};
 $('ratio').oninput=e=>{if(compressor)compressor.ratio.setTargetAtTime(+e.target.value,ctx.currentTime,.02);$('compVal').textContent=e.target.value+':1'};
-function stopSource(){if(source){try{source.stop()}catch{}try{source.disconnect()}catch{}source=null}playing=false;cancelAnimationFrame(raf);$('play').textContent='▶ PLAY'}
-async function startAt(offset=0){
- await initAudio();if(!fileBuffer)return;
- stopSource();source=ctx.createBufferSource();source.buffer=fileBuffer;source.loop=$('loop').checked;source.connect(inputGain);source.start(0,Math.min(offset,fileBuffer.duration));startedAt=ctx.currentTime-offset;playing=true;$('play').textContent='❚❚ PAUSE';$('stop').disabled=false;draw();
-}
+function resetStereoMeters(){
+  ['inDbL','inDbR','outDbL','outDbR'].forEach(id=>{
+    $(id).textContent='-∞ dB';
+  });
+
+  ['inMeterL','inMeterR','outMeterL','outMeterR'].forEach(id=>{
+    $(id).style.width='0%';
+  });
+  }
+  function stopSource(){
+  if(source){
+    try{source.stop()}catch{}
+    try{source.disconnect()}catch{}
+    source=null;
+  }
+
+  playing=false;
+  cancelAnimationFrame(raf);
+  resetStereoMeters();
+
+  $('play').textContent='▶ PLAY';
+      }
 $('audioFile').onchange=async e=>{
  const f=e.target.files[0];if(!f)return;
  try{setStatus('MEMUAT FILE');await initAudio();const buf=await f.arrayBuffer();fileBuffer=await ctx.decodeAudioData(buf);$('fileName').textContent=f.name+' • '+fileBuffer.numberOfChannels+' ch • '+(fileBuffer.sampleRate/1000).toFixed(1)+' kHz';$('play').disabled=false;$('stop').disabled=false;$('seek').disabled=false;$('seek').value=0;$('clock').textContent='00:00 / '+fmtTime(fileBuffer.duration);pausedAt=0;setStatus('FILE SIAP');}
