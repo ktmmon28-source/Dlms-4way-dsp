@@ -351,7 +351,20 @@ async function initAudio(){
  if(!AC) throw Error('Browser ini tidak mendukung Web Audio API.');
  ctx=new AC();
  inputGain=ctx.createGain();
- let prev=inputGain;
+
+// SPLIT INPUT STEREO UNTUK METER
+const inputMeterSplit=ctx.createChannelSplitter(2);
+const inputMeterL=ctx.createAnalyser();
+const inputMeterR=ctx.createAnalyser();
+
+inputMeterL.fftSize=256;
+inputMeterR.fftSize=256;
+
+inputGain.connect(inputMeterSplit);
+inputMeterSplit.connect(inputMeterL,0);
+inputMeterSplit.connect(inputMeterR,1);
+
+let prev=inputGain;
  freqs.forEach((f,i)=>{let n=ctx.createBiquadFilter();n.type='peaking';n.frequency.value=f;n.Q.value=1.1;n.gain.value=0;prev.connect(n);prev=n;eqNodes.push(n)});
  
 // PEMISAH AUDIO STEREO LEFT / RIGHT
