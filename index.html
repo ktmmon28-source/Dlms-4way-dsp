@@ -547,7 +547,23 @@ $('play').onclick=async()=>{
  if(playing){pausedAt=Math.max(0,ctx.currentTime-startedAt);stopSource();$('play').textContent='▶ LANJUT';}
  else {if(pausedAt>=fileBuffer.duration)pausedAt=0;await startAt(pausedAt)}
 };
-$('stop').onclick=()=>{stopSource();pausedAt=0;if($('seek'))$('seek').value=0;$('play').textContent='▶ PLAY';$('clock').textContent='00:00 / '+fmtTime(fileBuffer?.duration||0)};
+function resetStereoMeters(){
+  ['inDbL','inDbR','outDbL','outDbR'].forEach(id=>{
+    $(id).textContent='-∞ dB';
+  });
+
+  ['inMeterL','inMeterR','outMeterL','outMeterR'].forEach(id=>{
+    $(id).style.width='0%';
+  });
+  }
+  $('stop').onclick=()=>{
+  stopSource();
+  resetStereoMeters();
+  pausedAt=0;
+  if($('seek'))$('seek').value=0;
+  $('play').textContent='▶ PLAY';
+  $('clock').textContent='00:00 / '+fmtTime(fileBuffer?.duration||0);
+};
 $('seek').oninput=e=>{if(!fileBuffer)return;let t=(+e.target.value/1000)*fileBuffer.duration;$('clock').textContent=fmtTime(t)+' / '+fmtTime(fileBuffer.duration)};
 $('seek').onchange=e=>{if(!fileBuffer)return;pausedAt=(+e.target.value/1000)*fileBuffer.duration;if(playing)startAt(pausedAt);else $('clock').textContent=fmtTime(pausedAt)+' / '+fmtTime(fileBuffer.duration)};
 $('mute').onclick=()=>{muted=!muted;if(outputGain)outputGain.gain.setTargetAtTime(muted?0:1,ctx.currentTime,.01);$('mute').textContent=muted?'UNMUTE':'MUTE'};
