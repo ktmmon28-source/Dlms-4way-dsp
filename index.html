@@ -656,5 +656,14 @@ $('loadPreset').onclick=()=>{let p=localStorage.getItem('dlms4Preset');if(p){app
 $('reset').onclick=()=>{applyPreset({eq:freqs.map(()=>0),channels:defaults,master:0,limiter:-1,ratio:4});$('presetMsg').textContent='Pengaturan DSP direset.'};
 })();
 </script>
+  <script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('DLMS PWA aktif'))
+      .catch(err => console.error('PWA error:', err));
+  });
+}
+  </script>
 </body>
 </html>
