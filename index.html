@@ -174,6 +174,182 @@ button:active {
   }
 }
 
+/* ===== DLMS BY AS AUDIO - PREMIUM UI ===== */
+:root {
+  --bg: #080d13;
+  --panel: #111c28;
+  --panel2: #192838;
+  --line: #293e50;
+  --txt: #edf7ff;
+  --cyan: #32d9ee;
+  --green: #6ee7a8;
+  --muted: #91a5b8;
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% -10%, #18384a 0%, #0b121c 48%, #070b11 100%);
+  color: var(--txt);
+  font-family: system-ui, Arial, sans-serif;
+}
+
+header {
+  background: rgba(10, 19, 29, .96);
+  border-bottom: 1px solid #29485b;
+  box-shadow: 0 5px 24px #0007;
+  backdrop-filter: blur(12px);
+}
+
+.brand h1 {
+  font-size: 21px;
+  letter-spacing: 1.4px;
+}
+
+.brand small {
+  color: var(--cyan);
+  letter-spacing: 2px;
+}
+
+main {
+  gap: 16px;
+  padding: 14px;
+}
+
+.panel {
+  background: linear-gradient(145deg, #142333, #0d1621);
+  border: 1px solid #294052;
+  border-radius: 17px;
+  padding: 15px;
+  box-shadow: 0 9px 28px #0005;
+}
+
+.panel h2 {
+  color: #f1faff;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #263a4b;
+}
+
+.control,
+.channel {
+  background: linear-gradient(145deg, #172838, #101a26);
+  border: 1px solid #2b4355;
+  border-radius: 13px;
+}
+
+button, .filebtn, select {
+  min-height: 43px;
+  border-radius: 10px;
+  transition: .15s ease;
+}
+
+button.primary {
+  background: linear-gradient(135deg, #087e96, #20c9df);
+  color: #06151c;
+  border: 0;
+  box-shadow: 0 4px 15px #18c9df33;
+}
+
+button.warn {
+  background: #39251e;
+  border-color: #895332;
+}
+
+input[type=range] {
+  accent-color: var(--cyan);
+  cursor: pointer;
+  min-height: 24px;
+}
+
+.meter {
+  height: 14px;
+  background: #050a10;
+  border: 1px solid #30495b;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.meter > i {
+  background: linear-gradient(90deg, #20cde4, #65e7ae 72%, #ffb454);
+  box-shadow: 0 0 10px #32d9ee66;
+}
+
+.stereo-meters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  margin: 15px 0;
+}
+
+.meter-panel {
+  min-width: 0;
+  padding: 11px;
+  background: #0b1520;
+  border: 1px solid #263e50;
+  border-radius: 12px;
+}
+
+.eqband {
+  background: #0d1925;
+  border: 1px solid #294052;
+  border-radius: 11px;
+}
+
+.eqband input {
+  accent-color: var(--cyan);
+}
+
+.value {
+  color: var(--cyan);
+  text-shadow: 0 0 10px #32d9ee33;
+}
+
+.tag {
+  background: #123744;
+  color: var(--cyan);
+  border: 1px solid #246071;
+}
+
+canvas {
+  border: 1px solid #29475a;
+  box-shadow: inset 0 0 18px #0008;
+}
+
+.status {
+  background: #102b25;
+  border-color: #28644e;
+}
+
+footer {
+  padding-bottom: 30px;
+  letter-spacing: .5px;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding: 10px;
+    gap: 12px;
+  }
+
+  .panel {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .stereo-meters {
+    gap: 8px;
+  }
+
+  .meter-panel {
+    padding: 9px;
+  }
+
+  .eqband {
+    padding: 7px 3px;
+  }
+}
+
 </style>
 </head>
 <body>
