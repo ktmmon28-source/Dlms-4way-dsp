@@ -523,6 +523,16 @@ body {
 <div class="layout">
 <section class="panel full">
 <h2>02 / 10-BAND PARAMETRIC EQ</h2>
+
+<div class="eq-curve-wrap" style="margin:12px 0 16px">
+ <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+  <strong style="color:var(--cyan);font-size:12px">LIVE FREQUENCY RESPONSE</strong>
+  <span style="color:var(--muted);font-size:10px">20 Hz — 20 kHz</span>
+ </div>
+ <canvas id="eqCurve" width="900" height="260"
+  style="width:100%;height:220px"></canvas>
+</div>
+
 <div class="row" style="justify-content:space-between;margin-bottom:10px"><label>GAIN SETIAP BAND: -12 dB sampai +12 dB</label><button id="eqFlat">FLAT EQ</button></div>
 <div class="eqgrid" id="eqGrid"></div>
 </section>
