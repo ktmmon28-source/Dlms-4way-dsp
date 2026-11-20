@@ -776,7 +776,19 @@ function updateEQ(){
 $('channels').addEventListener('input',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('channels').addEventListener('change',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('eqGrid').addEventListener('input',updateEQ);
-$('eqFlat').onclick=()=>{document.querySelectorAll('[data-eq]').forEach(e=>e.value=0);updateEQ()};
+$('eqFlat').onclick=()=>{
+ document.querySelectorAll('[data-eq-band]').forEach(card=>{
+  card.querySelector('[data-eq-freq]').value=
+   card.querySelector('[data-eq-freq]').defaultValue;
+
+  card.querySelector('[data-eq]').value=0;
+
+  card.querySelector('[data-eq-q]').value=1.1;
+
+  card.querySelector('[data-eq-bypass]').checked=false;
+ });
+ updateEQ();
+};
 $('master').oninput=e=>{if(masterGain)masterGain.gain.setTargetAtTime(dbLin(+e.target.value),ctx.currentTime,.02);$('masterVal').textContent=e.target.value+' dB'};
 $('limiter').oninput=e=>{if(limiter)limiter.threshold.setTargetAtTime(+e.target.value,ctx.currentTime,.02);$('limVal').textContent=e.target.value+' dB'};
 $('ratio').oninput=e=>{if(compressor)compressor.ratio.setTargetAtTime(+e.target.value,ctx.currentTime,.02);$('compVal').textContent=e.target.value+':1'};
