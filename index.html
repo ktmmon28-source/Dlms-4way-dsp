@@ -786,6 +786,8 @@ function updateChannel(i){
  const hp=Math.max(20,Math.min(2000,Number(get('hp').value)||25));
  const lp=Math.max(100,Math.min(20000,Number(get('lp').value)||18000));
  const gain=Math.max(-12,Math.min(12,Number(get('gain').value)||0));
+  card.querySelector('[data-p="gain"]').nextElementSibling.textContent=
+ gain.toFixed(1)+' dB';
  const delay=Math.max(0,Math.min(50,Number(get('delay').value)||0));
  const pol=get('pol').checked;
 
