@@ -1,0 +1,13 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="90" fill="#080d14"/>
+  <rect x="35" y="35" width="442" height="442" rx="70"
+        fill="#101722" stroke="#00d9ff" stroke-width="10"/>
+  <path d="M75 260 H125 L155 170 L200 350 L245 205
+           L285 300 L325 225 L355 260 H435"
+        fill="none" stroke="#00d9ff" stroke-width="18"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="425" text-anchor="middle"
+        font-family="Arial" font-size="58" font-weight="bold"
+        fill="white">AS AUDIO</text>
+</svg>
