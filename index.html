@@ -875,8 +875,10 @@ c.lineWidth=db===0?2:1;
   const dbLinGain=20*Math.log10(dbLin(s.gain));
 
   c.beginPath();
-  c.strokeStyle=color;
-  c.lineWidth=2.5;
+c.strokeStyle=color;
+c.lineWidth=2.5;
+c.shadowColor=color;
+c.shadowBlur=12;
 
   for(let p=0;p<=300;p++){
    const f=minF*Math.pow(maxF/minF,p/300);
@@ -901,6 +903,7 @@ const lpDb=20*Math.log10(
    else c.lineTo(x,y);
   }
   c.stroke();
+   c.shadowBlur=0;
    // CUTOFF POINT INDICATORS
    const markerColor=i===0?'#22d3ee':'#f59e0b';
 [
