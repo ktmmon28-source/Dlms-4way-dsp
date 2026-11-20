@@ -568,23 +568,26 @@ $('seek').oninput=e=>{if(!fileBuffer)return;let t=(+e.target.value/1000)*fileBuf
 $('seek').onchange=e=>{if(!fileBuffer)return;pausedAt=(+e.target.value/1000)*fileBuffer.duration;if(playing)startAt(pausedAt);else $('clock').textContent=fmtTime(pausedAt)+' / '+fmtTime(fileBuffer.duration)};
 $('mute').onclick=()=>{muted=!muted;if(outputGain)outputGain.gain.setTargetAtTime(muted?0:1,ctx.currentTime,.01);$('mute').textContent=muted?'UNMUTE':'MUTE'};
 $('loop').onchange=()=>{if(playing&&source)source.loop=$('loop').checked};
+
 function readStereoMeter(node, dbId, meterId) {
-  const data = new Uint8Array(node.fftSize);
-  node.getByteTimeDomainData(data);
+  const data = new Float32Array(node.fftSize);
+  node.getFloatTimeDomainData(data);
 
   let sum = 0;
   for (let x of data) {
-    const v = (x - 128) / 128;
-    sum += v * v;
+    sum += x * x;
   }
 
   const rms = Math.sqrt(sum / data.length);
-  const db = rms > 0 ? 20 * Math.log10(rms) : -90;
+  const db = rms > 0 ? 20 * Math.log10(rms) : -120;
 
-  $(dbId).textContent = db <= -90 ? '-∞ dB' : db.toFixed(1) + ' dB';
+  $(dbId).textContent =
+    db <= -120 ? '-∞ dB' : db.toFixed(1) + ' dB';
+
   $(meterId).style.width =
     Math.max(0, Math.min(100, (db + 60) / 60 * 100)) + '%';
-  }
+}
+
   function draw(){
  if(!ctx||!playing)return;
  const now=Math.max(0,ctx.currentTime-startedAt),dur=fileBuffer.duration;
