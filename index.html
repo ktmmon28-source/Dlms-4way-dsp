@@ -778,6 +778,29 @@ setStatus('AUDIO ENGINE AKTIF');
 
 }
 
+function updateChannel(i){
+ const card=document.querySelector(`[data-ch="${i}"]`);
+ if(!card || !ctx || !splitNodes[i])return;
+
+ const get=k=>card.querySelector(`[data-p="${k}"]`);
+ const hp=Math.max(20,Math.min(2000,Number(get('hp').value)||25));
+ const lp=Math.max(100,Math.min(20000,Number(get('lp').value)||18000));
+ const gain=Math.max(-12,Math.min(12,Number(get('gain').value)||0));
+ const delay=Math.max(0,Math.min(50,Number(get('delay').value)||0));
+ const pol=get('pol').checked;
+
+ const n=splitNodes[i];
+
+ [n.hp1,n.hp2].forEach(f=>f.frequency.setTargetAtTime(hp,ctx.currentTime,.015));
+ [n.lp1,n.lp2].forEach(f=>f.frequency.setTargetAtTime(lp,ctx.currentTime,.015));
+
+ n.gain.gain.setTargetAtTime(dbLin(gain),ctx.currentTime,.015);
+ n.delay.delayTime.setTargetAtTime(delay/1000,ctx.currentTime,.015);
+ n.invert.gain.setTargetAtTime(pol?-1:1,ctx.currentTime,.015);
+
+ channelSettings[i]={hp,lp,gain,delay,pol};
+}
+
 function updateEQ(){
  document.querySelectorAll('[data-eq-band]').forEach(card=>{
   const i=Number(card.dataset.eqBand);
