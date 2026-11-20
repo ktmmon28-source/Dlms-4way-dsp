@@ -899,6 +899,33 @@ const lpDb=20*Math.log10(
    else c.lineTo(x,y);
   }
   c.stroke();
+   // HPF & LPF FREQUENCY MARKERS
+c.save();
+
+const markerColor=i===0?'#22d3ee':'#f59e0b';
+
+[
+ {freq:s.hp,label:'HPF',dash:[]},
+ {freq:s.lp,label:'LPF',dash:[5,4]}
+].forEach(m=>{
+ const x=X(m.freq);
+
+ c.beginPath();
+ c.strokeStyle=markerColor;
+ c.lineWidth=1.5;
+ c.setLineDash(m.dash);
+ c.moveTo(x,T);
+ c.lineTo(x,H-B);
+ c.stroke();
+
+ c.setLineDash([]);
+ c.fillStyle=markerColor;
+ c.font='bold 10px Arial';
+ c.fillText(m.label+' '+m.freq+' Hz',
+  Math.min(x+4,W-85),T+12+(m.label==='LPF'?14:0));
+});
+
+c.restore();
  });
 }
 
