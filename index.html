@@ -350,6 +350,61 @@ footer {
   }
 }
 
+body {
+  padding-bottom: 90px;
+}
+
+.panel[hidden] {
+  display: none !important;
+}
+
+.dlms-page-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 3px;
+  padding: 8px 5px calc(8px + env(safe-area-inset-bottom));
+  background: #080f19;
+  border-top: 1px solid #29485b;
+}
+
+.dlms-page-nav button {
+  min-width: 0;
+  min-height: 52px;
+  padding: 4px 1px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #91a5b8;
+  font-size: 9px;
+}
+
+.dlms-page-nav button.active {
+  color: #32d9ee;
+  background: #123744;
+  border-color: #246071;
+}
+
+.dlms-page-nav .nav-icon {
+  font-size: 18px;
+}
+
+.dlms-page-title {
+  color: #32d9ee;
+  text-align: center;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 10px;
+}
+
 </style>
 </head>
 <body>
@@ -841,5 +896,120 @@ if ('serviceWorker' in navigator) {
   });
 }
   </script>
+<script id="dlms-six-page-navigation">
+(() => {
+  const main = document.querySelector('main');
+  if (!main) return;
+
+  const panels = [...main.querySelectorAll('section.panel')];
+  const findPanel = (text) =>
+    panels.find(p => p.querySelector('h2')?.textContent.includes(text));
+
+  const player = findPanel('01 / PLAYER');
+  const eq = findPanel('02 / 10-BAND');
+  const input = findPanel('03 / STEREO');
+  const dynamics = findPanel('04 / MASTER');
+  const spectrum = findPanel('05 / SPECTRUM');
+  const preset = findPanel('06 / PRESET');
+
+  if (![player, eq, input, dynamics, spectrum, preset].every(Boolean)) {
+    console.error('DLMS: panel tidak ditemukan');
+    return;
+  }
+
+  // Buat halaman OUTPUT tanpa menggandakan kontrol atau ID.
+  const output = document.createElement('section');
+  output.className = 'panel full';
+  output.innerHTML = '<h2>OUTPUT — STEREO L/R</h2><div id="dlms-output-controls"></div><div class="stereo-meters" id="dlms-output-meters"></div>';
+
+  main.insertBefore(output, player.nextSibling);
+
+  const masterControl = dynamics.querySelector('#master')?.closest('.control');
+  if (masterControl) {
+    output.querySelector('#dlms-output-controls').appendChild(masterControl);
+  }
+
+  const meterCards = [...player.querySelectorAll('.meter-panel')];
+  meterCards.forEach(card => {
+    const label = card.querySelector('label')?.textContent || '';
+    if (label.includes('OUTPUT')) {
+      output.querySelector('#dlms-output-meters').appendChild(card);
+    }
+  });
+
+  // Sisakan meter INPUT pada halaman HOME.
+  const meterGrid = player.querySelector('.stereo-meters');
+  if (meterGrid && !meterGrid.querySelector('.meter-panel')) {
+    meterGrid.remove();
+  }
+
+  // Hilangkan catatan konfigurasi 4 kanal yang tidak sesuai.
+  panels.forEach(p => {
+    if (p.textContent.includes('CATATAN KELUARAN 4 KANAL')) {
+      p.hidden = true;
+    }
+  });
+
+  const title = document.createElement('div');
+  title.className = 'dlms-page-title';
+  main.prepend(title);
+
+  const pages = {
+    HOME: [player, spectrum],
+    INPUT: [input],
+    EQ: [eq],
+    DYNAMICS: [dynamics],
+    OUTPUT: [output],
+    PRESET: [preset]
+  };
+
+  const icons = {
+    HOME: '⌂',
+    INPUT: '♫',
+    EQ: '≋',
+    DYNAMICS: '⚡',
+    OUTPUT: '◉',
+    PRESET: '▤'
+  };
+
+  const nav = document.createElement('nav');
+  nav.className = 'dlms-page-nav';
+  nav.setAttribute('aria-label', 'Navigasi DLMS');
+
+  const buttons = {};
+
+  function showPage(name) {
+    [...main.querySelectorAll('section.panel')].forEach(p => {
+      p.hidden = true;
+    });
+
+    pages[name].forEach(p => p.hidden = false);
+    title.textContent = name + ' — DLMS BY AS AUDIO';
+
+    Object.entries(buttons).forEach(([key, button]) => {
+      button.classList.toggle('active', key === name);
+    });
+  }
+
+  Object.keys(pages).forEach(name => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.innerHTML =
+      '<span class="nav-icon">' + icons[name] +
+      '</span><span>' + name + '</span>';
+    button.addEventListener('click', () => showPage(name));
+    buttons[name] = button;
+    nav.appendChild(button);
+  });
+
+  document.body.appendChild(nav);
+
+  const layout = main.querySelector('.layout');
+  if (layout) layout.style.display = 'contents';
+
+  showPage('HOME');
+})();
+</script>
+
 </body>
 </html>
