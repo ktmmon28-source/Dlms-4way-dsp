@@ -766,8 +766,11 @@ invert.connect(busAnalyser);
 
  splitNodes[i]={
   hp1,hp2,lp1,lp2,
-  delay,gain,invert,busAnalyser
- };
+  delay,gain,invert,busAnalyser,
+  input:stereoSplit,
+  channel:i,
+  hpEnabled:true
+};
 });
 
 // MASTER DAN DYNAMICS
