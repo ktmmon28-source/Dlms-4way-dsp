@@ -841,40 +841,70 @@ function drawEQCurve(){
   c.fillText(f>=1000?(f/1000)+'k':f,x(f),h-9);
  });
 
- // EQ curve
- c.beginPath();
+// EXACT PARAMETRIC EQ RESPONSE
+const bands=[...document.querySelectorAll('[data-eq-band]')].map(card=>({
+ freq:Number(card.querySelector('[data-eq-freq]').value),
+ gain:Number(card.querySelector('[data-eq]').value),
+ q:Number(card.querySelector('[data-eq-q]').value),
+ bypass:card.querySelector('[data-eq-bypass]').checked
+}));
 
- for(let px=0;px<=pw;px++){
-  const f=minF*Math.pow(maxF/minF,px/pw);
-  let db=0;
+const sampleRate=ctx?ctx.sampleRate:48000;
 
-  document.querySelectorAll('[data-eq-band]')
-  .forEach(card=>{
-   const freq=Number(card.querySelector('[data-eq-freq]').value);
-   const gain=Number(card.querySelector('[data-eq]').value);
-   const q=Number(card.querySelector('[data-eq-q]').value);
-   const bypass=card.querySelector('[data-eq-bypass]').checked;
+c.beginPath();
 
-   if(bypass||!freq||!q)return;
+for(let px=0;px<=pw;px++){
+ const f=minF*Math.pow(maxF/minF,px/pw);
+ let totalDb=0;
 
-   const width=Math.log(2)/(2*Math.max(.3,Math.min(10,q)));
-   const distance=Math.log(f/freq)/width;
+ bands.forEach(b=>{
+  if(b.bypass||!Number.isFinite(b.freq)||!Number.isFinite(b.gain)||!Number.isFinite(b.q))return;
+  if(b.freq<20||b.q<.3)return;
 
-   db+=gain*Math.exp(-.5*distance*distance);
-  });
+  const w0=2*Math.PI*Math.min(b.freq,sampleRate*.49)/sampleRate;
+  const A=Math.pow(10,b.gain/40);
+  const alpha=Math.sin(w0)/(2*b.q);
+  const cos0=Math.cos(w0);
 
-  db=Math.max(minDB,Math.min(maxDB,db));
+  const a0=1+alpha/A;
 
-  if(px===0)c.moveTo(left+px,y(db));
-  else c.lineTo(left+px,y(db));
- }
+  const b0=(1+alpha*A)/a0;
+  const b1=(-2*cos0)/a0;
+  const b2=(1-alpha*A)/a0;
+  const a1=(-2*cos0)/a0;
+  const a2=(1-alpha/A)/a0;
 
- c.strokeStyle='#20e6ff';
- c.lineWidth=3;
- c.shadowColor='#20e6ff';
- c.shadowBlur=8;
- c.stroke();
- c.shadowBlur=0;
+  const w=2*Math.PI*f/sampleRate;
+  const cos1=Math.cos(w);
+  const sin1=Math.sin(w);
+  const cos2=Math.cos(2*w);
+  const sin2=Math.sin(2*w);
+
+  const nr=b0+b1*cos1+b2*cos2;
+  const ni=-b1*sin1-b2*sin2;
+  const dr=1+a1*cos1+a2*cos2;
+  const di=-a1*sin1-a2*sin2;
+
+  const numerator=Math.sqrt(nr*nr+ni*ni);
+  const denominator=Math.sqrt(dr*dr+di*di);
+  const magnitude=numerator/Math.max(1e-12,denominator);
+
+  totalDb+=20*Math.log10(Math.max(1e-12,magnitude));
+ });
+
+ totalDb=Math.max(minDB,Math.min(maxDB,totalDb));
+
+ if(px===0)c.moveTo(left+px,y(totalDb));
+ else c.lineTo(left+px,y(totalDb));
+}
+
+c.strokeStyle='#20e6ff';
+c.lineWidth=3;
+c.shadowColor='#20e6ff';
+c.shadowBlur=8;
+c.stroke();
+c.shadowBlur=0;
+
  }
 
 $('channels').addEventListener('input',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
