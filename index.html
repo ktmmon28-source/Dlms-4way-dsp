@@ -783,6 +783,99 @@ function updateEQ(){
  });
 }
 
+function drawEQCurve(){
+ const canvas=$('eqCurve');
+ if(!canvas)return;
+
+ const c=canvas.getContext('2d');
+ const w=canvas.width;
+ const h=canvas.height;
+
+ c.clearRect(0,0,w,h);
+
+ const left=48,right=w-15,top=15,bottom=h-30;
+ const pw=right-left,ph=bottom-top;
+
+ const minF=20,maxF=20000;
+ const minDB=-18,maxDB=18;
+
+ const x=f=>left+
+  Math.log(f/minF)/Math.log(maxF/minF)*pw;
+
+ const y=db=>bottom-
+  (db-minDB)/(maxDB-minDB)*ph;
+
+ // Background
+ c.fillStyle='#08111b';
+ c.fillRect(0,0,w,h);
+
+ // Grid dB
+ c.font='12px Arial';
+ c.textAlign='right';
+
+ for(let db=-18;db<=18;db+=6){
+  c.strokeStyle=db===0?'#55758a':'#203244';
+  c.lineWidth=db===0?2:1;
+  c.beginPath();
+  c.moveTo(left,y(db));
+  c.lineTo(right,y(db));
+  c.stroke();
+
+  c.fillStyle='#8da5b9';
+  c.fillText(db+' dB',left-7,y(db)+4);
+ }
+
+ // Grid frequency
+ [20,50,100,200,500,1000,2000,5000,10000,20000]
+ .forEach(f=>{
+  c.strokeStyle='#203244';
+  c.lineWidth=1;
+  c.beginPath();
+  c.moveTo(x(f),top);
+  c.lineTo(x(f),bottom);
+  c.stroke();
+
+  c.fillStyle='#8da5b9';
+  c.textAlign='center';
+  c.fillText(f>=1000?(f/1000)+'k':f,x(f),h-9);
+ });
+
+ // EQ curve
+ c.beginPath();
+
+ for(let px=0;px<=pw;px++){
+  const f=minF*Math.pow(maxF/minF,px/pw);
+  let db=0;
+
+  document.querySelectorAll('[data-eq-band]')
+  .forEach(card=>{
+   const freq=Number(card.querySelector('[data-eq-freq]').value);
+   const gain=Number(card.querySelector('[data-eq]').value);
+   const q=Number(card.querySelector('[data-eq-q]').value);
+   const bypass=card.querySelector('[data-eq-bypass]').checked;
+
+   if(bypass||!freq||!q)return;
+
+   const width=Math.log(2)/(2*Math.max(.3,Math.min(10,q)));
+   const distance=Math.log(f/freq)/width;
+
+   db+=gain*Math.exp(-.5*distance*distance);
+  });
+
+  db=Math.max(minDB,Math.min(maxDB,db));
+
+  if(px===0)c.moveTo(left+px,y(db));
+  else c.lineTo(left+px,y(db));
+ }
+
+ c.strokeStyle='#20e6ff';
+ c.lineWidth=3;
+ c.shadowColor='#20e6ff';
+ c.shadowBlur=8;
+ c.stroke();
+ c.shadowBlur=0;
+}
+
 $('channels').addEventListener('input',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('channels').addEventListener('change',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('eqGrid').addEventListener('input',updateEQ);
