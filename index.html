@@ -575,52 +575,38 @@ let channelSettings=defaults.map(x=>({...x}));
 const dbLin=db=>Math.pow(10,db/20);
 const fmtTime=s=>{s=Math.max(0,Math.floor(s||0));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 function makeUI(){
- $('eqGrid').innerHTML=freqs.map((f,i)=>`<div class="eqband"><strong>${f>=1000?(f/1000)+'k':f} Hz</strong><input aria-label="EQ ${f} Hz" type="range" min="-12" max="12" step=".5" value="0" data-eq="${i}"><output>0 dB</output></div>`).join('');
- $('channels').innerHTML=names.map((n,i)=>`
-<div class="channel" data-ch="${i}">
- <div class="channelhead">
-  <b>${n}</b>
-  <span class="tag">${i===0?'OUT L':'OUT R'}</span>
- </div>
 
- <div class="smallgrid">
-  <div>
-   <label>HPF Hz</label>
-   <input type="number" min="10" max="18000"
-   value="${defaults[i].hp}" data-p="hp">
-  </div>
-  <div>
-   <label>LPF Hz</label>
-   <input type="number" min="20" max="20000"
-   value="${defaults[i].lp}" data-p="lp">
-  </div>
- </div>
+$('eqGrid').innerHTML=freqs.map((f,i)=>`
+<div class="eqband" data-eq-band="${i}">
+ <strong>BAND ${String(i+1).padStart(2,'0')}</strong>
 
- <div class="control" style="margin-top:9px">
-  <div class="top">
-   <label>OUTPUT GAIN</label>
-   <span class="value" data-val="gain">0 dB</span>
-  </div>
-  <input type="range" min="-60" max="6"
-   step=".5" value="0" data-p="gain">
- </div>
+ <label>FREQ (Hz)</label>
+ <input type="number" min="20" max="20000"
+  step="1" value="${f}" data-eq-freq="${i}">
 
- <div class="control" style="margin-top:8px">
-  <div class="top">
-   <label>DELAY (ms)</label>
-   <span class="value" data-val="delay">0 ms</span>
-  </div>
-  <input type="range" min="0" max="20"
-   step=".1" value="0" data-p="delay">
- </div>
+ <label>GAIN (dB)</label>
+ <input type="range" min="-12" max="12"
+  step=".5" value="0" data-eq="${i}">
+ <output data-eq-gain="${i}">0.0 dB</output>
 
- <label class="switch" style="margin-top:9px">
-  <input type="checkbox" data-p="pol">
-  POLARITY INVERT
+ <label>Q FACTOR</label>
+ <input type="number" min=".3" max="10"
+  step=".05" value="1.1" data-eq-q="${i}">
+
+ <label style="display:flex;align-items:center;gap:8px">
+  <input type="checkbox" style="width:auto;height:auto"
+   data-eq-bypass="${i}">
+  BYPASS
  </label>
 </div>
 `).join('');
-}
+
+$('eqGrid').querySelectorAll(
+ '[data-eq],[data-eq-freq],[data-eq-q],[data-eq-bypass]'
+).forEach(el=>{
+ el.addEventListener('input',updateEQ);
+});
+
 makeUI();
 function setStatus(t,ok=true){$('status').textContent=(ok?'● ':'● ')+t;$('status').style.color=ok?'var(--green)':'var(--orange)'}
 async function initAudio(){
@@ -752,20 +738,41 @@ outputGain.connect(ctx.destination);
 setStatus('AUDIO ENGINE AKTIF');
 
 }
-function updateEQ(){document.querySelectorAll('[data-eq]').forEach(el=>{let i=+el.dataset.eq,v=+el.value; if(eqNodes[i])eqNodes[i].gain.setTargetAtTime(v,ctx.currentTime,.015);el.nextElementSibling.value=v.toFixed(1)+' dB';el.nextElementSibling.textContent=v.toFixed(1)+' dB'})}
-function updateChannel(i){
- const card=document.querySelector(`[data-ch="${i}"]`),s=channelSettings[i],b=splitNodes[i];if(!b || !b.hp1)return;
- s.hp=+card.querySelector('[data-p="hp"]').value;s.lp=+card.querySelector('[data-p="lp"]').value;
- s.gain=+card.querySelector('[data-p="gain"]').value;s.delay=+card.querySelector('[data-p="delay"]').value;s.pol=card.querySelector('[data-p="pol"]').checked;
- const hp=Math.max(10,Math.min(18000,s.hp)),lp=Math.max(hp+10,Math.min(20000,s.lp));
- [b.hp1,b.hp2].forEach(n=>n.frequency.setTargetAtTime(hp,ctx.currentTime,.02));
- [b.lp1,b.lp2].forEach(n=>n.frequency.setTargetAtTime(lp,ctx.currentTime,.02));
- b.gain.gain.setTargetAtTime(dbLin(s.gain),ctx.currentTime,.02);
- b.delay.delayTime.setTargetAtTime(s.delay/1000,ctx.currentTime,.02);
- b.invert.gain.setTargetAtTime(s.pol?-1:1,ctx.currentTime,.02);
- card.querySelector('[data-val="gain"]').textContent=s.gain.toFixed(1)+' dB';
- card.querySelector('[data-val="delay"]').textContent=s.delay.toFixed(1)+' ms';
+
+function updateEQ(){
+ document.querySelectorAll('[data-eq-band]').forEach(card=>{
+  const i=Number(card.dataset.eqBand);
+  const n=eqNodes[i];
+  if(!n)return;
+
+  const freq=card.querySelector('[data-eq-freq]');
+  const gain=card.querySelector('[data-eq]');
+  const q=card.querySelector('[data-eq-q]');
+  const bypass=card.querySelector('[data-eq-bypass]');
+
+  let f=Number(freq.value);
+  let g=Number(gain.value);
+  let qv=Number(q.value);
+
+  if(!Number.isFinite(f))f=freq.defaultValue;
+  if(!Number.isFinite(g))g=0;
+  if(!Number.isFinite(qv))qv=1.1;
+
+  f=Math.max(20,Math.min(20000,f));
+  g=Math.max(-12,Math.min(12,g));
+  qv=Math.max(.3,Math.min(10,qv));
+
+  n.frequency.setTargetAtTime(f,ctx.currentTime,.015);
+  n.Q.setTargetAtTime(qv,ctx.currentTime,.015);
+  n.gain.setTargetAtTime(
+   bypass.checked?0:g,ctx.currentTime,.015
+  );
+
+  card.querySelector('[data-eq-gain]').textContent=
+   g.toFixed(1)+' dB';
+ });
 }
+
 $('channels').addEventListener('input',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('channels').addEventListener('change',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('eqGrid').addEventListener('input',updateEQ);
