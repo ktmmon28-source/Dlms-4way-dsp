@@ -852,6 +852,8 @@ function drawXoverGraph(){
 
  [-36,-24,-12,0,12].forEach(db=>{
   c.beginPath();
+c.strokeStyle=db===0?'rgba(255,255,255,.9)':'rgba(150,160,180,.18)';
+c.lineWidth=db===0?2:1;
   c.moveTo(L,Y(db));
   c.lineTo(W-R,Y(db));
   c.stroke();
