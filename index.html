@@ -831,6 +831,15 @@ function updateChannel(i){
  n.invert.gain.setTargetAtTime(pol?-1:1,ctx.currentTime,.015);
 
  channelSettings[i]={hp,lp,gain,delay,pol};
+  // UPDATE CROSSOVER INFO PANEL
+const info=i===0
+ ?{hp:'infoLHP',lp:'infoLLP',gain:'infoLGain'}
+ :{hp:'infoRHP',lp:'infoRLP',gain:'infoRGain'};
+
+$(info.hp).textContent=hp>=1000?(hp/1000).toFixed(1)+' kHz':hp+' Hz';
+$(info.lp).textContent=lp>=1000?(lp/1000).toFixed(1)+' kHz':lp+' Hz';
+$(info.gain).textContent=gain.toFixed(1)+' dB';
+
   drawXoverGraph();
 }
 
