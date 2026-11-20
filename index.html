@@ -557,22 +557,30 @@ dan Polarity. Filter Linkwitz-Riley 24 dB/oct.
 
 <div class="grid4" id="channels"></div>
   <div class="grid4" id="xoverInfo"
- style="margin-top:16px">
-
- <div class="eqband">
+ style="margin-top:16px;gap:14px">
+ <div class="eqband" style="background:linear-gradient(145deg,#101f2c,#08121e);border:1px solid #22d3ee;border-radius:12px;padding:14px;box-shadow:0 0 12px rgba(34,211,238,.12)">
   <strong style="color:#22d3ee">LEFT CHANNEL</strong>
-  <p>HPF: <b id="infoLHP">25 Hz</b></p>
-  <p>LPF: <b id="infoLLP">18000 Hz</b></p>
-  <p>GAIN: <b id="infoLGain">0.0 dB</b></p>
+  <p>HPF: <b id="infoLHP" style="color:#22d3ee;font-size:18px;font-family:monospace;text-shadow:0 0 8px #22d3ee">25 Hz</b></p>
+  <p>LPF: <b id="infoLLP" style="color:#22d3ee;font-size:18px;font-family:monospace;text-shadow:0 0 8px #22d3ee">18000 Hz</b></p>
+  <p>GAIN: <b id="infoLGain" style="color:#22d3ee;font-size:18px;font-family:monospace;text-shadow:0 0 8px #22d3ee">0.0 dB</b></p>
  </div>
 
- <div class="eqband">
+ <div class="eqband" style="background:linear-gradient(145deg,#211b12,#100d08);border:1px solid #f59e0b;border-radius:12px;padding:14px;box-shadow:0 0 12px rgba(245,158,11,.12)">
   <strong style="color:#f59e0b">RIGHT CHANNEL</strong>
-  <p>HPF: <b id="infoRHP">25 Hz</b></p>
-  <p>LPF: <b id="infoRLP">18000 Hz</b></p>
-  <p>GAIN: <b id="infoRGain">0.0 dB</b></p>
+  <p>HPF: <b id="infoRHP" style="color:#f59e0b;font-size:18px;font-family:monospace;text-shadow:0 0 8px #f59e0b">25 Hz</b></p>
+  <p>LPF: <b id="infoRLP" style="color:#f59e0b;font-size:18px;font-family:monospace;text-shadow:0 0 8px #f59e0b">18000 Hz</b></p>
+  <p>GAIN: <b id="infoRGain" style="color:#f59e0b;font-size:18px;font-family:monospace;text-shadow:0 0 8px #f59e0b">0.0 dB</b></p>
  </div>
-
+<div class="eqband" style="grid-column:1/-1;background:#0b1724;border:1px solid #334155;border-radius:10px;padding:12px;display:flex;justify-content:space-around;text-align:center">
+  <div>
+    <small style="color:#94a3b8">FILTER TYPE</small>
+    <div style="color:#22d3ee;font-family:monospace;font-size:17px">LINKWITZ-RILEY</div>
+  </div>
+  <div>
+    <small style="color:#94a3b8">SLOPE</small>
+    <div style="color:#f59e0b;font-family:monospace;font-size:17px">24 dB / OCT</div>
+  </div>
+</div>
   </div>
 </section>
 <section class="panel">
