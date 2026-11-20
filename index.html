@@ -778,9 +778,10 @@ function updateEQ(){
    bypass.checked?0:g,ctx.currentTime,.015
   );
 
-  card.querySelector('[data-eq-gain]').textContent=
+    card.querySelector('[data-eq-gain]').textContent=
    g.toFixed(1)+' dB';
  });
+ drawEQCurve();
 }
 
 function drawEQCurve(){
@@ -874,7 +875,7 @@ function drawEQCurve(){
  c.shadowBlur=8;
  c.stroke();
  c.shadowBlur=0;
-}
+ }
 
 $('channels').addEventListener('input',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
 $('channels').addEventListener('change',e=>{let card=e.target.closest('[data-ch]');if(card)updateChannel(+card.dataset.ch)});
