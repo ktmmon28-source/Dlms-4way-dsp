@@ -658,11 +658,15 @@ $('eqGrid').querySelectorAll(
 $('channels').innerHTML=names.map((name,i)=>`
  <div class="eqband" data-ch="${i}">
   <strong>CHANNEL ${name}</strong>
-
+<label style="display:flex;align-items:center;gap:8px;color:#22d3ee">
+  <input type="checkbox" data-p="hpOn" checked>
+  <span>HPF FILTER ON</span>
+  <span data-status="hp" style="color:#22d3ee">● ACTIVE</span>
+</label>
   <label>HPF (Hz)</label>
   <input type="number" min="20" max="2000"
    value="${defaults[i].hp}" data-p="hp">
-
+ 
   <label>LPF (Hz)</label>
   <input type="number" min="100" max="20000"
    value="${defaults[i].lp}" data-p="lp">
