@@ -616,6 +616,35 @@ $('eqGrid').querySelectorAll(
 ).forEach(el=>{
  el.addEventListener('input',updateEQ);
 });
+
+$('channels').innerHTML=names.map((name,i)=>`
+ <div class="eqband" data-ch="${i}">
+  <strong>CHANNEL ${name}</strong>
+
+  <label>HPF (Hz)</label>
+  <input type="number" min="20" max="2000"
+   value="${defaults[i].hp}" data-p="hp">
+
+  <label>LPF (Hz)</label>
+  <input type="number" min="100" max="20000"
+   value="${defaults[i].lp}" data-p="lp">
+
+  <label>GAIN (dB)</label>
+  <input type="range" min="-12" max="12" step=".5"
+   value="${defaults[i].gain}" data-p="gain">
+  <output>${defaults[i].gain.toFixed(1)} dB</output>
+
+  <label>DELAY (ms)</label>
+  <input type="number" min="0" max="50" step=".1"
+   value="${defaults[i].delay}" data-p="delay">
+
+  <label>
+   <input type="checkbox" data-p="pol">
+   POLARITY REVERSE
+  </label>
+ </div>
+`).join('');
+
 }
 makeUI();
 function setStatus(t,ok=true){$('status').textContent=(ok?'● ':'● ')+t;$('status').style.color=ok?'var(--green)':'var(--orange)'}
