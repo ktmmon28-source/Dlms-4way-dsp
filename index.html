@@ -813,6 +813,7 @@ function updateChannel(i){
  n.invert.gain.setTargetAtTime(pol?-1:1,ctx.currentTime,.015);
 
  channelSettings[i]={hp,lp,gain,delay,pol};
+  drawXoverGraph();
 }
 
 function drawXoverGraph(){
