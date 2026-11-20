@@ -1,4 +1,3 @@
-
 {
   "name": "DLMS by AS AUDIO",
   "short_name": "DLMS",
@@ -7,7 +6,15 @@
   "display": "standalone",
   "orientation": "landscape",
   "background_color": "#080d14",
-  "theme_color": "#080d14"
+  "theme_color": "#080d14",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }
 
 
