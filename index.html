@@ -725,6 +725,8 @@ channelSettings.forEach((s,i)=>{
 
  const hp1=ctx.createBiquadFilter();
  const hp2=ctx.createBiquadFilter();
+  const hpOnGain=ctx.createGain();
+const hpBypassGain=ctx.createGain();
  const lp1=ctx.createBiquadFilter();
  const lp2=ctx.createBiquadFilter();
 
@@ -750,10 +752,19 @@ channelSettings.forEach((s,i)=>{
  invert.gain.value=1;
 
  // Ambil kanal L atau R secara terpisah
- stereoSplit.connect(hp1,i);
+// JALUR HPF AKTIF
+stereoSplit.connect(hp1,i);
+hp1.connect(hp2);
+hp2.connect(hpOnGain);
+hpOnGain.connect(lp1);
 
- hp1.connect(hp2);
- hp2.connect(lp1);
+// JALUR HPF BYPASS
+stereoSplit.connect(hpBypassGain,i);
+hpBypassGain.connect(lp1);
+
+// DEFAULT: HPF ON
+hpOnGain.gain.value=1;
+hpBypassGain.gain.value=0;
  lp1.connect(lp2);
  lp2.connect(delay);
  delay.connect(gain);
@@ -766,6 +777,7 @@ invert.connect(busAnalyser);
 
  splitNodes[i]={
   hp1,hp2,lp1,lp2,
+  hpOnGain,hpBypassGain,
   delay,gain,invert,busAnalyser,
   input:stereoSplit,
   channel:i,
@@ -834,10 +846,29 @@ function updateChannel(i){
   card.querySelector('[data-p="gain"]').nextElementSibling.textContent=
  gain.toFixed(1)+' dB';
  const delay=Math.max(0,Math.min(50,Number(get('delay').value)||0));
- const pol=get('pol').checked;
+const pol=get('pol').checked;
+const hpOn=get('hpOn').checked;
 
- const n=splitNodes[i];
+const n=splitNodes[i];
 
+// HPF TRUE BYPASS / CROSSFADE
+n.hpEnabled=hpOn;
+
+n.hpOnGain.gain.setTargetAtTime(
+ hpOn?1:0,ctx.currentTime,0.02
+);
+
+n.hpBypassGain.gain.setTargetAtTime(
+ hpOn?0:1,ctx.currentTime,0.02
+);
+
+// UPDATE STATUS LED
+const hpStatus=card.querySelector('[data-status="hp"]');
+
+if(hpStatus){
+ hpStatus.textContent=hpOn?'● ACTIVE':'● BYPASS';
+ hpStatus.style.color=hpOn?'#22d3ee':'#64748b';
+}
  [n.hp1,n.hp2].forEach(f=>f.frequency.setTargetAtTime(hp,ctx.currentTime,.015));
  [n.lp1,n.lp2].forEach(f=>f.frequency.setTargetAtTime(lp,ctx.currentTime,.015));
 
@@ -845,7 +876,7 @@ function updateChannel(i){
  n.delay.delayTime.setTargetAtTime(delay/1000,ctx.currentTime,.015);
  n.invert.gain.setTargetAtTime(pol?-1:1,ctx.currentTime,.015);
 
- channelSettings[i]={hp,lp,gain,delay,pol};
+ channelSettings[i]={hp,lp,gain,delay,pol,hpOn};
   // UPDATE CROSSOVER INFO PANEL
 const info=i===0
  ?{hp:'infoLHP',lp:'infoLLP',gain:'infoLGain'}
