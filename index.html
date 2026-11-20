@@ -901,6 +901,28 @@ const lpDb=20*Math.log10(
    else c.lineTo(x,y);
   }
   c.stroke();
+   // CUTOFF POINT INDICATORS
+[
+ {freq:s.hp},
+ {freq:s.lp}
+].forEach(m=>{
+ const f=m.freq;
+
+ const hpDb=20*Math.log10(
+  1/(1+Math.pow(s.hp/f,4))
+ );
+
+ const lpDb=20*Math.log10(
+  1/(1+Math.pow(f/s.lp,4))
+ );
+
+ const totalDb=hpDb+lpDb+dbLinGain;
+
+ c.beginPath();
+ c.fillStyle=markerColor;
+ c.arc(X(f),Y(totalDb),4,0,Math.PI*2);
+ c.fill();
+});
    // HPF & LPF FREQUENCY MARKERS
 c.save();
 
