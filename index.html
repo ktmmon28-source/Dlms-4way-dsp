@@ -606,7 +606,7 @@ $('eqGrid').querySelectorAll(
 ).forEach(el=>{
  el.addEventListener('input',updateEQ);
 });
-
+}
 makeUI();
 function setStatus(t,ok=true){$('status').textContent=(ok?'● ':'● ')+t;$('status').style.color=ok?'var(--green)':'var(--orange)'}
 async function initAudio(){
