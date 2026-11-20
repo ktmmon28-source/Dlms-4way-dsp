@@ -902,6 +902,7 @@ const lpDb=20*Math.log10(
   }
   c.stroke();
    // CUTOFF POINT INDICATORS
+   const markerColor=i===0?'#22d3ee':'#f59e0b';
 [
  {freq:s.hp},
  {freq:s.lp}
@@ -925,8 +926,6 @@ const lpDb=20*Math.log10(
 });
    // HPF & LPF FREQUENCY MARKERS
 c.save();
-
-const markerColor=i===0?'#22d3ee':'#f59e0b';
 
 [
  {freq:s.hp,label:'HPF',dash:[]},
