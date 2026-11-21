@@ -1543,7 +1543,7 @@ if ('serviceWorker' in navigator) {
 `;
   const masterSlider = output.querySelector('#master');
 const masterDisplay = output.querySelector('#masterVal');
-
+masterDisplay.textContent = 'KONTROL TERPASANG';
 masterSlider.addEventListener('input', function() {
   const value = Number(this.value);
 
