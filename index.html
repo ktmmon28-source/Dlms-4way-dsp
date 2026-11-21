@@ -1748,7 +1748,33 @@ $('loadYoutube').onclick=()=>{
   $('youtubeMessage').textContent='Video siap dimuat. Tekan tombol Play pada pemutar YouTube.';
 };
 $('youtubeUrl').addEventListener('keydown',e=>{if(e.key==='Enter')$('loadYoutube').click()});
+// TOMBOL NEXT YOUTUBE
+$('nextYoutube').onclick = ()=>{
+  if(youtubeTracks.length === 0) return;
 
+  currentYoutubeIndex =
+    (currentYoutubeIndex + 1) % youtubeTracks.length;
+
+  $('youtubeUrl').value =
+    youtubeTracks[currentYoutubeIndex].url;
+
+  $('loadYoutube').click();
+};
+
+// TOMBOL PREVIOUS YOUTUBE
+$('prevYoutube').onclick = ()=>{
+  if(youtubeTracks.length === 0) return;
+
+  currentYoutubeIndex =
+    currentYoutubeIndex <= 0
+      ? youtubeTracks.length - 1
+      : currentYoutubeIndex - 1;
+
+  $('youtubeUrl').value =
+    youtubeTracks[currentYoutubeIndex].url;
+
+  $('loadYoutube').click();
+};
 function snapshot(){return {eq:[...document.querySelectorAll('[data-eq]')].map(e=>+e.value),channels:channelSettings,master:+$('master').value,limiter:+$('limiter').value,ratio:+$('ratio').value}}
 function applyPreset(p){
  if(!p)return;
