@@ -666,7 +666,11 @@ $('channels').innerHTML=names.map((name,i)=>`
   <label>HPF (Hz)</label>
   <input type="number" min="20" max="2000"
    value="${defaults[i].hp}" data-p="hp">
- 
+ <label style="display:flex;align-items:center;gap:8px;color:#f59e0b">
+  <input type="checkbox" data-p="lpOn" checked>
+  <span>LPF FILTER ON</span>
+  <span data-status="lp" style="color:#f59e0b">● ACTIVE</span>
+</label>
   <label>LPF (Hz)</label>
   <input type="number" min="100" max="20000"
    value="${defaults[i].lp}" data-p="lp">
@@ -729,7 +733,9 @@ channelSettings.forEach((s,i)=>{
 const hpBypassGain=ctx.createGain();
  const lp1=ctx.createBiquadFilter();
  const lp2=ctx.createBiquadFilter();
-
+  const hpOut=ctx.createGain();
+const lpOnGain=ctx.createGain();
+const lpBypassGain=ctx.createGain();
  [hp1,hp2].forEach(n=>{
   n.type='highpass';
   n.frequency.value=s.hp;
@@ -756,17 +762,32 @@ const hpBypassGain=ctx.createGain();
 stereoSplit.connect(hp1,i);
 hp1.connect(hp2);
 hp2.connect(hpOnGain);
-hpOnGain.connect(lp1);
+hpOnGain.connect(hpOut);
 
 // JALUR HPF BYPASS
 stereoSplit.connect(hpBypassGain,i);
-hpBypassGain.connect(lp1);
+hpBypassGain.connect(hpOut);
 
-// DEFAULT: HPF ON
+// DEFAULT HPF ON
 hpOnGain.gain.value=1;
 hpBypassGain.gain.value=0;
- lp1.connect(lp2);
- lp2.connect(delay);
+
+// PEMBAGI SINYAL KE LPF
+hpOut.connect(lp1);
+hpOut.connect(lpBypassGain);
+
+// JALUR LPF AKTIF
+lp1.connect(lp2);
+lp2.connect(lpOnGain);
+lpOnGain.connect(delay);
+
+// JALUR LPF BYPASS
+lpBypassGain.connect(delay);
+
+// DEFAULT LPF ON
+hpOut.gain.value=1;
+lpOnGain.gain.value=1;
+lpBypassGain.gain.value=0;
  delay.connect(gain);
  gain.connect(invert);
  // Kirim audio langsung ke output stereo
@@ -778,10 +799,12 @@ invert.connect(busAnalyser);
  splitNodes[i]={
   hp1,hp2,lp1,lp2,
   hpOnGain,hpBypassGain,
+  hpOut,lpOnGain,lpBypassGain,
   delay,gain,invert,busAnalyser,
   input:stereoSplit,
   channel:i,
-  hpEnabled:true
+  hpEnabled:true,
+  lpEnabled:true
 };
 });
 
@@ -848,7 +871,7 @@ function updateChannel(i){
  const delay=Math.max(0,Math.min(50,Number(get('delay').value)||0));
 const pol=get('pol').checked;
 const hpOn=get('hpOn').checked;
-
+const lpOn=get('lpOn').checked;
 const n=splitNodes[i];
 
 // HPF TRUE BYPASS / CROSSFADE
@@ -869,6 +892,25 @@ if(hpStatus){
  hpStatus.textContent=hpOn?'● ACTIVE':'● BYPASS';
  hpStatus.style.color=hpOn?'#22d3ee':'#64748b';
 }
+  // LPF TRUE BYPASS / CROSSFADE
+n.lpEnabled=lpOn;
+
+n.lpOnGain.gain.setTargetAtTime(
+ lpOn?1:0,ctx.currentTime,0.02
+);
+
+n.lpBypassGain.gain.setTargetAtTime(
+ lpOn?0:1,ctx.currentTime,0.02
+);
+
+// UPDATE STATUS LPF
+const lpStatus=card.querySelector('[data-status="lp"]');
+
+if(lpStatus){
+ lpStatus.textContent=lpOn?'● ACTIVE':'● BYPASS';
+ lpStatus.style.color=lpOn?'#f59e0b':'#64748b';
+  }
+  
  [n.hp1,n.hp2].forEach(f=>f.frequency.setTargetAtTime(hp,ctx.currentTime,.015));
  [n.lp1,n.lp2].forEach(f=>f.frequency.setTargetAtTime(lp,ctx.currentTime,.015));
 
@@ -876,7 +918,7 @@ if(hpStatus){
  n.delay.delayTime.setTargetAtTime(delay/1000,ctx.currentTime,.015);
  n.invert.gain.setTargetAtTime(pol?-1:1,ctx.currentTime,.015);
 
- channelSettings[i]={hp,lp,gain,delay,pol,hpOn};
+ channelSettings[i]={hp,lp,gain,delay,pol,hpOn,lpOn};
   // UPDATE CROSSOVER INFO PANEL
 const info=i===0
  ?{hp:'infoLHP',lp:'infoLLP',gain:'infoLGain'}
