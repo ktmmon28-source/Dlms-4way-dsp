@@ -612,6 +612,7 @@ dan Polarity. Filter Linkwitz-Riley 24 dB/oct.
 (() => {
 'use strict';
 const $ = id => document.getElementById(id);
+  console.log('DLMS PLAYER SCRIPT AKTIF');
 const freqs=[31,63,125,250,500,1000,2000,4000,8000,16000];
 let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedAt=0, pausedAt=0;
 let inputGain, eqNodes=[], splitNodes=[], channelNodes=[], masterGain, compressor, limiter, analyser, outputGain, raf=0;
