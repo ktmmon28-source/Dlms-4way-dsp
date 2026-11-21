@@ -579,29 +579,28 @@ dan Polarity. Filter Linkwitz-Riley 24 dB/oct.
   <div>
     <small style="color:#94a3b8">SLOPE</small>
     <div style="color:#f59e0b;font-family:monospace;font-size:17px">24 dB / OCT</div>
-  </div>
-</div>
-  </div>
-</section>
-<section class="panel">
-<h2>04 / MASTER & DYNAMICS</h2>
-<div class="control"><div class="top"><label>MASTER GAIN</label><span class="value" id="masterVal">0 dB</span></div><input id="master" type="range" min="-30" max="6" value="0" step=".5"></div>
-<div class="control" style="margin-top:9px"><div class="top"><label>LIMITER THRESHOLD</label><span class="value" id="limVal">-1 dB</span></div><input id="limiter" type="range" min="-18" max="0" value="-1" step=".5"></div>
-<div class="control" style="margin-top:9px"><div class="top"><label>COMPRESSOR RATIO</label><span class="value" id="compVal">4:1</span></div><input id="ratio" type="range" min="1" max="20" value="4" step=".5"></div>
-</section>
-<section class="panel">
-<h2>05 / SPECTRUM ANALYZER</h2><canvas id="spectrum" width="600" height="150"></canvas>
-<p class="note">Tampilan spektrum sinyal keluaran. Analisis berjalan saat audio diputar.</p>
-</section>
-<section class="panel full">
-<h2>06 / PRESET</h2>
-<div class="row"><button id="savePreset" class="primary">SIMPAN PRESET</button><button id="loadPreset">MUAT PRESET</button><button id="reset" class="warn">RESET DSP</button><span class="note" id="presetMsg">Preset disimpan di penyimpanan browser perangkat ini.</span></div>
 </section>
 </div>
 <section class="panel">
 <h2>CATATAN KELUARAN 4 KANAL</h2>
 <p class="note">SUB, LOW, MID, dan HIGH diproses pada empat bus internal terpisah. Pada konfigurasi Android biasa, keempat bus dijumlahkan ke output stereo agar tetap terdengar. Ini belum merupakan empat keluaran jack/USB independen. Untuk 4 output fisik, gunakan audio interface USB 4-channel atau lebih dan host/browser yang mendukung pemetaan kanal multichannel.</p>
-</section>
+<div class="row">
+<select id="presetSlot">
+<option value="1">PRESET 1</option>
+<option value="2">PRESET 2</option>
+<option value="3">PRESET 3</option>
+<option value="4">PRESET 4</option>
+<option value="5">PRESET 5</option>
+</select>
+
+<button id="savePreset" class="primary">SIMPAN PRESET</button>
+<button id="loadPreset">MUAT PRESET</button>
+<button id="reset" class="warn">RESET DSP</button>
+
+<span class="note" id="presetMsg">Pilih slot preset 1–5.</span>
+</div>
+</section> 
+  
 </main>
 <footer>DLMS by AS AUDIO • STEREO 2-CHANNEL DSP • Web Audio API • Pemrosesan lokal di browser</footer>
 <script>
@@ -1397,9 +1396,37 @@ channelSettings=defaults.map((d,i)=>({
  $('master').value=p.master??0;$('limiter').value=p.limiter??-1;$('ratio').value=p.ratio??4;
  $('master').dispatchEvent(new Event('input'));$('limiter').dispatchEvent(new Event('input'));$('ratio').dispatchEvent(new Event('input'));
 }
-$('savePreset').onclick=()=>{localStorage.setItem('dlms4Preset',JSON.stringify(snapshot()));$('presetMsg').textContent='Preset berhasil disimpan.'};
-$('loadPreset').onclick=()=>{let p=localStorage.getItem('dlms4Preset');if(p){applyPreset(JSON.parse(p));$('presetMsg').textContent='Preset berhasil dimuat.'}else $('presetMsg').textContent='Belum ada preset tersimpan.'};
-$('reset').onclick=()=>{applyPreset({eq:freqs.map(()=>0),channels:defaults,master:0,limiter:-1,ratio:4});$('presetMsg').textContent='Pengaturan DSP direset.'};
+$('savePreset').onclick=()=>{
+ const slot=$('presetSlot').value;
+ localStorage.setItem(
+  'dlms4Preset_'+slot,
+  JSON.stringify(snapshot())
+ );
+ $('presetMsg').textContent='PRESET '+slot+' berhasil disimpan.';
+};
+
+$('loadPreset').onclick=()=>{
+ const slot=$('presetSlot').value;
+ const p=localStorage.getItem('dlms4Preset_'+slot);
+
+ if(p){
+  applyPreset(JSON.parse(p));
+  $('presetMsg').textContent='PRESET '+slot+' berhasil dimuat.';
+ }else{
+  $('presetMsg').textContent='PRESET '+slot+' masih kosong.';
+ }
+};
+
+$('reset').onclick=()=>{
+ applyPreset({
+  eq:freqs.map(()=>0),
+  channels:defaults,
+  master:0,
+  limiter:-1,
+  ratio:4
+ });
+ $('presetMsg').textContent='Pengaturan DSP direset.';
+};
 })();
 </script>
   <script>
