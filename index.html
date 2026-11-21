@@ -627,6 +627,7 @@ const $ = id => document.getElementById(id);
   console.log('DLMS PLAYER SCRIPT AKTIF');
 const freqs=[31,63,125,250,500,1000,2000,4000,8000,16000];
 let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedAt=0, pausedAt=0;
+  let mp3Tracks = [], currentTrackIndex = -1, mp3DB = null;
 let inputGain, eqNodes=[], splitNodes=[], channelNodes=[], masterGain, compressor, limiter, analyser, outputGain, raf=0;
 let inputMeterL, inputMeterR;
 let outputMeterL, outputMeterR;
@@ -639,6 +640,134 @@ const defaults=[
 let channelSettings=defaults.map(x=>({...x}));
 const dbLin=db=>Math.pow(10,db/20);
 const fmtTime=s=>{s=Math.max(0,Math.floor(s||0));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+  // PENYIMPANAN PLAYLIST MP3
+function initMP3Database(){
+  return new Promise((resolve,reject)=>{
+    const request=indexedDB.open('DLMS_AS_AUDIO',1);
+
+    request.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('tracks')){
+        db.createObjectStore('tracks',{
+          keyPath:'id',
+          autoIncrement:true
+        });
+      }
+    };
+
+    request.onsuccess=e=>{
+      mp3DB=e.target.result;
+      resolve(mp3DB);
+    };
+
+    request.onerror=()=>{
+      reject(request.error);
+    };
+  });
+}
+
+async function saveMP3File(file){
+  if(!mp3DB) await initMP3Database();
+
+  return new Promise((resolve,reject)=>{
+    const tx=mp3DB.transaction('tracks','readwrite');
+    const request=tx.objectStore('tracks').add({
+      name:file.name,
+      blob:file,
+      added:Date.now()
+    });
+
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+
+async function getSavedMP3Files(){
+  if(!mp3DB) await initMP3Database();
+
+  return new Promise((resolve,reject)=>{
+    const tx=mp3DB.transaction('tracks','readonly');
+    const request=tx.objectStore('tracks').getAll();
+
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+}
+
+async function getSavedMP3File(id){
+  if(!mp3DB) await initMP3Database();
+
+  return new Promise((resolve,reject)=>{
+    const tx=mp3DB.transaction('tracks','readonly');
+    const request=tx.objectStore('tracks').get(id);
+
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error);
+  });
+  }
+  // TAMPILKAN DAFTAR PLAYLIST MP3
+function renderMP3Playlist(){
+  const list=$('mp3List');
+  if(!list)return;
+
+  list.innerHTML='';
+
+  if(mp3Tracks.length===0){
+    list.textContent='Belum ada lagu tersimpan.';
+    return;
+  }
+
+  mp3Tracks.forEach((track,index)=>{
+    const item=document.createElement('button');
+    item.textContent=(index+1)+'. '+track.name;
+    item.style.display='block';
+    item.style.width='100%';
+    item.style.marginTop='6px';
+    item.style.textAlign='left';
+
+    item.onclick=()=>loadMP3Track(index);
+
+    list.appendChild(item);
+  });
+}
+
+// MUAT LAGU DARI PENYIMPANAN
+async function loadMP3Track(index){
+  try{
+    const track=mp3Tracks[index];
+    if(!track)return;
+
+    setStatus('MEMUAT '+track.name);
+    stopSource();
+    await initAudio();
+
+    const saved=await getSavedMP3File(track.id);
+    if(!saved)return;
+
+    fileBuffer=await ctx.decodeAudioData(
+      await saved.blob.arrayBuffer()
+    );
+
+    currentTrackIndex=index;
+    pausedAt=0;
+
+    $('fileName').textContent=track.name;
+    $('play').disabled=false;
+    $('stop').disabled=false;
+    $('seek').disabled=false;
+    $('seek').value=0;
+
+    $('clock').textContent='00:00 / '+fmtTime(fileBuffer.duration);
+    $('play').textContent='▶ PLAY';
+
+    setStatus('LAGU SIAP');
+    renderMP3Playlist();
+
+  }catch(err){
+    setStatus('GAGAL MEMUAT LAGU',false);
+    alert('Gagal memuat MP3: '+err.message);
+  }
+  }
 function makeUI(){
 
 $('eqGrid').innerHTML=freqs.map((f,i)=>`
