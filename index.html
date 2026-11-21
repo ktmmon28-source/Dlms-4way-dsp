@@ -858,7 +858,15 @@ outputMeterSplit.connect(outputMeterR,1);
 limiter.connect(analyser);
 analyser.connect(outputGain);
 outputGain.connect(ctx.destination);
-
+window.setDLMSMaster = function(db) {
+  if (masterGain && ctx) {
+    masterGain.gain.setTargetAtTime(
+      Math.pow(10, Number(db) / 20),
+      ctx.currentTime,
+      0.02
+    );
+  }
+};
 setStatus('AUDIO ENGINE AKTIF');
 
 }
