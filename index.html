@@ -1541,21 +1541,21 @@ if ('serviceWorker' in navigator) {
 
 <div class="stereo-meters" id="dlms-output-meters"></div>
 `;
-  output.addEventListener('input', e => {
-  if (e.target.id === 'master') {
-    const value = Number(e.target.value);
+  const masterSlider = output.querySelector('#master');
+const masterDisplay = output.querySelector('#masterVal');
 
-    if (masterGain && ctx) {
-      masterGain.gain.setTargetAtTime(
-        dbLin(value),
-        ctx.currentTime,
-        0.02
-      );
-    }
+masterSlider.addEventListener('input', function() {
+  const value = Number(this.value);
 
-    const display = output.querySelector('#masterVal');
-    if (display) display.textContent = value.toFixed(1) + ' dB';
+  if (masterGain && ctx) {
+    masterGain.gain.setTargetAtTime(
+      dbLin(value),
+      ctx.currentTime,
+      0.02
+    );
   }
+
+  masterDisplay.textContent = value.toFixed(1) + ' dB';
 });
 
   main.insertBefore(output, player.nextSibling);
