@@ -1388,7 +1388,10 @@ function applyPreset(p){
  ? p.channels : defaults;
 
 channelSettings=defaults.map((d,i)=>({
- ...d,...(savedChannels[i]||{})
+ ...d,
+ ...(savedChannels[i]||{}),
+ hpOn:savedChannels[i]?.hpOn??true,
+ lpOn:savedChannels[i]?.lpOn??true
 }));
  channelSettings.forEach((s,i)=>{let card=document.querySelector(`[data-ch="${i}"]`);Object.keys(s).forEach(k=>{let el=card.querySelector(`[data-p="${k}"]`);if(el){if(el.type==='checkbox')el.checked=!!s[k];else el.value=s[k]}});updateChannel(i)});
  $('master').value=p.master??0;$('limiter').value=p.limiter??-1;$('ratio').value=p.ratio??4;
