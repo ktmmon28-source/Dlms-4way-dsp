@@ -1734,7 +1734,71 @@ $('saveYoutube').onclick = ()=>{
 };
 
 renderYoutubePlaylist();
+  // PENGENDALI RESMI YOUTUBE
+let youtubePlayer = null;
+let youtubePlayerReady = false;
+let pendingYoutubeId = '';
+
+window.onYouTubeIframeAPIReady = function(){
+  youtubePlayer = new YT.Player('youtubeFrame',{
+    width:'100%',
+    height:'100%',
+    playerVars:{
+      playsinline:1,
+      rel:0
+    },
+    events:{
+      onReady:function(){
+        youtubePlayerReady = true;
+
+        if(pendingYoutubeId){
+          youtubePlayer.cueVideoById(pendingYoutubeId);
+          pendingYoutubeId = '';
+        }
+      },
+
+      onStateChange:function(event){
+        if(event.data === YT.PlayerState.ENDED){
+          if(youtubeTracks.length > 0 && currentYoutubeIndex >= 0){
+            currentYoutubeIndex =
+              (currentYoutubeIndex + 1) % youtubeTracks.length;
+
+            const nextId = youtubeTracks[currentYoutubeIndex].id;
+
+            $('youtubeMessage').textContent =
+              'Memutar video berikutnya...';
+
+            youtubePlayer.loadVideoById(nextId);
+          }
+        }
+      }
+    }
+  });
+};
 $('loadYoutube').onclick=()=>{
+  const raw=$('youtubeUrl').value.trim();
+  const id=getYouTubeId(raw);
+
+  if(!id || !/^[A-Za-z0-9_-]{11}$/.test(id)){
+    $('youtubeMessage').textContent='Link tidak dikenali. Gunakan link YouTube yang valid.';
+    $('youtubeFrameWrap').style.display='none';
+    return;
+  }
+
+  currentYoutubeIndex=youtubeTracks.findIndex(
+    track=>track.id===id
+  );
+
+  $('youtubeFrameWrap').style.display='block';
+  $('youtubeMessage').textContent=
+    'Video siap dimuat. Tekan Play pada pemutar YouTube.';
+
+  if(youtubePlayerReady && youtubePlayer){
+    youtubePlayer.cueVideoById(id);
+  }else{
+    pendingYoutubeId=id;
+  }
+};
   const raw=$('youtubeUrl').value;
   const id=getYouTubeId(raw);
   if(!id || !/^[A-Za-z0-9_-]{11}$/.test(id)){
@@ -1993,6 +2057,6 @@ masterSlider.addEventListener('input', function() {
   showPage('HOME');
 })();
 </script>
-
+<script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
