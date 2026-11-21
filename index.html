@@ -1450,7 +1450,13 @@ if ('serviceWorker' in navigator) {
   const player = findPanel('01 / PLAYER');
   const eq = findPanel('02 / 10-BAND');
   const input = findPanel('03 / STEREO');
-  const dynamics = findPanel('04 / MASTER');
+  const dynamics = findPanel('04 / MASTER') || (() => {
+  const p = document.createElement('section');
+  p.className = 'panel full';
+  p.innerHTML = '<h2>04 / DYNAMICS</h2><p class="note">Panel DYNAMICS sedang dipulihkan.</p>';
+  main.appendChild(p);
+  return p;
+})();
   const spectrum = findPanel('05 / SPECTRUM');
   const preset = findPanel('06 / PRESET');
 
