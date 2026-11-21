@@ -1544,7 +1544,7 @@ if ('serviceWorker' in navigator) {
     </label>
     <input id="master" type="range"
   min="-60" max="6" step="0.1" value="0"
-  oninput="document.getElementById('masterVal').textContent=this.value+' dB'">
+  oninput="document.getElementById('masterVal').textContent=this.value+' dB'; window.setDLMSMaster(this.value)"
   </div>
 </div>
 
