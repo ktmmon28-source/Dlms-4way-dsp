@@ -1666,6 +1666,74 @@ function getYouTubeId(raw){
   }catch(e){}
   return '';
 }
+  // PLAYLIST YOUTUBE TERSIMPAN
+let youtubeTracks = JSON.parse(
+  localStorage.getItem('dlmsYoutubePlaylist') || '[]'
+);
+
+let currentYoutubeIndex = -1;
+
+// TAMPILKAN PLAYLIST
+function renderYoutubePlaylist(){
+  const list = $('youtubeList');
+  if(!list) return;
+
+  list.innerHTML = '';
+
+  if(youtubeTracks.length === 0){
+    list.textContent = 'Belum ada video tersimpan.';
+    return;
+  }
+
+  youtubeTracks.forEach((track,index)=>{
+    const item = document.createElement('button');
+    item.textContent = (index+1)+'. '+track.title;
+    item.style.display = 'block';
+    item.style.width = '100%';
+    item.style.marginTop = '6px';
+    item.style.textAlign = 'left';
+
+    item.onclick = ()=>{
+      $('youtubeUrl').value = track.url;
+      $('loadYoutube').click();
+      currentYoutubeIndex = index;
+    };
+
+    list.appendChild(item);
+  });
+}
+
+// SIMPAN LINK YOUTUBE
+$('saveYoutube').onclick = ()=>{
+  const raw = $('youtubeUrl').value.trim();
+  const id = getYouTubeId(raw);
+
+  if(!id || !/^[A-Za-z0-9_-]{11}$/.test(id)){
+    $('youtubeMessage').textContent = 'Link YouTube tidak valid.';
+    return;
+  }
+
+  if(youtubeTracks.some(track=>track.id===id)){
+    $('youtubeMessage').textContent = 'Video ini sudah ada di playlist.';
+    return;
+  }
+
+  youtubeTracks.push({
+    id:id,
+    url:raw,
+    title:'Video YouTube '+(youtubeTracks.length+1)
+  });
+
+  localStorage.setItem(
+    'dlmsYoutubePlaylist',
+    JSON.stringify(youtubeTracks)
+  );
+
+  renderYoutubePlaylist();
+  $('youtubeMessage').textContent = 'Link berhasil disimpan!';
+};
+
+renderYoutubePlaylist();
 $('loadYoutube').onclick=()=>{
   const raw=$('youtubeUrl').value;
   const id=getYouTubeId(raw);
