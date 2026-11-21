@@ -1464,10 +1464,35 @@ async function startAt(offset=0){
   }
   
 $('audioFile').onchange=async e=>{
- 
- const f=e.target.files[0];if(!f)return;
- try{setStatus('MEMUAT FILE');await initAudio();const buf=await f.arrayBuffer();fileBuffer=await ctx.decodeAudioData(buf);$('fileName').textContent=f.name+' • '+fileBuffer.numberOfChannels+' ch • '+(fileBuffer.sampleRate/1000).toFixed(1)+' kHz';$('play').disabled=false;$('stop').disabled=false;$('seek').disabled=false;$('seek').value=0;$('clock').textContent='00:00 / '+fmtTime(fileBuffer.duration);pausedAt=0;setStatus('FILE SIAP');}
- catch(err){setStatus('GAGAL MEMUAT FILE',false);alert('File tidak dapat dibuka: '+err.message)}
+  const files=Array.from(e.target.files || []);
+  if(!files.length)return;
+
+  try{
+    setStatus('MENYIMPAN PLAYLIST MP3');
+    await initAudio();
+    await initMP3Database();
+
+    const firstNewIndex=mp3Tracks.length;
+
+    for(const file of files){
+      await saveMP3File(file);
+    }
+
+    mp3Tracks=await getSavedMP3Files();
+    renderMP3Playlist();
+
+    if(mp3Tracks.length){
+      await loadMP3Track(firstNewIndex);
+    }
+
+    setStatus(files.length+' LAGU BERHASIL DISIMPAN');
+
+  }catch(err){
+    setStatus('GAGAL MENYIMPAN MP3',false);
+    alert('Penyimpanan MP3 gagal: '+err.message);
+  }
+
+  e.target.value='';
 };
 $('play').onclick=async()=>{
  if(!fileBuffer)return;
