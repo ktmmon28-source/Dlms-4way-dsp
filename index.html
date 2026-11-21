@@ -768,6 +768,26 @@ async function loadMP3Track(index){
     alert('Gagal memuat MP3: '+err.message);
   }
   }
+  // TOMBOL NEXT DAN PREVIOUS PLAYLIST
+$('nextTrack').onclick=async()=>{
+  if(!mp3Tracks.length)return;
+
+  const next=(currentTrackIndex+1)%mp3Tracks.length;
+
+  await loadMP3Track(next);
+  await startAt(0);
+};
+
+$('prevTrack').onclick=async()=>{
+  if(!mp3Tracks.length)return;
+
+  const prev=currentTrackIndex<=0
+    ? mp3Tracks.length-1
+    : currentTrackIndex-1;
+
+  await loadMP3Track(prev);
+  await startAt(0);
+};
 function makeUI(){
 
 $('eqGrid').innerHTML=freqs.map((f,i)=>`
@@ -839,6 +859,20 @@ $('channels').innerHTML=names.map((name,i)=>`
 
 }
 makeUI();
+  // PULIHKAN PLAYLIST MP3 SAAT DLMS DIBUKA
+(async()=>{
+  try{
+    await initMP3Database();
+    mp3Tracks=await getSavedMP3Files();
+    renderMP3Playlist();
+
+    if(mp3Tracks.length){
+      setStatus(mp3Tracks.length+' LAGU TERSIMPAN');
+    }
+  }catch(err){
+    console.error('Gagal memulihkan playlist:',err);
+  }
+})();
 function setStatus(t,ok=true){$('status').textContent=(ok?'● ':'● ')+t;$('status').style.color=ok?'var(--green)':'var(--orange)'}
 async function initAudio(){
  if(ctx) {if(ctx.state==='suspended') await ctx.resume();return}
