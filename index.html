@@ -1457,7 +1457,13 @@ if ('serviceWorker' in navigator) {
   main.appendChild(p);
   return p;
 })();
-  const spectrum = findPanel('05 / SPECTRUM');
+  const spectrum = findPanel('05 / SPECTRUM') || (() => {
+  const p = document.createElement('section');
+  p.className = 'panel full';
+  p.innerHTML = '<h2>05 / SPECTRUM</h2><p class="note">Panel SPECTRUM sedang dipulihkan.</p>';
+  main.appendChild(p);
+  return p;
+})();
   const preset = findPanel('06 / PRESET');
 
   if (![player, eq, input, dynamics, spectrum, preset].every(Boolean)) {
