@@ -1501,7 +1501,26 @@ async function startAt(offset=0){
   source.loop=$('loop').checked;
   source.connect(inputGain);
   source.start(0,Math.min(offset,fileBuffer.duration));
+// AUTO NEXT SAAT LAGU SELESAI
+const endedSource=source;
 
+endedSource.onended=()=>{
+  // Abaikan jika lagu dihentikan manual
+  if(source!==endedSource)return;
+
+  source=null;
+  playing=false;
+
+  if(mp3Tracks.length>0 && currentTrackIndex>=0){
+    const next=(currentTrackIndex+1)%mp3Tracks.length;
+
+    loadMP3Track(next).then(()=>{
+      if(currentTrackIndex===next && fileBuffer){
+        startAt(0);
+      }
+    });
+  }
+};
   startedAt=ctx.currentTime-offset;
   playing=true;
   $('play').textContent='❚❚ PAUSE';
