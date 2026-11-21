@@ -1000,13 +1000,11 @@ c.shadowBlur=12;
    const hp=s.hp;
    const lp=s.lp;
 
-   const hpDb=20*Math.log10(
- 1/(1+Math.pow(hp/f,4))
-);
+   const hpDb=s.hpOn===false?0:
+ 20*Math.log10(1/(1+Math.pow(hp/f,4)));
 
-const lpDb=20*Math.log10(
- 1/(1+Math.pow(f/lp,4))
-);
+const lpDb=s.lpOn===false?0:
+ 20*Math.log10(1/(1+Math.pow(f/lp,4)));
 
    const db=Math.max(minDb,Math.min(maxDb,
     hpDb+lpDb+dbLinGain
@@ -1027,14 +1025,11 @@ const lpDb=20*Math.log10(
 ].forEach(m=>{
  const f=m.freq;
 
- const hpDb=20*Math.log10(
-  1/(1+Math.pow(s.hp/f,4))
- );
+ const hpDb=s.hpOn===false?0:
+  20*Math.log10(1/(1+Math.pow(s.hp/f,4)));
 
- const lpDb=20*Math.log10(
-  1/(1+Math.pow(f/s.lp,4))
- );
-
+const lpDb=s.lpOn===false?0:
+  20*Math.log10(1/(1+Math.pow(f/s.lp,4)));
  const totalDb=hpDb+lpDb+dbLinGain;
 
  c.beginPath();
@@ -1046,13 +1041,13 @@ const lpDb=20*Math.log10(
 c.save();
 
 [
- {freq:s.hp,label:'HPF',dash:[]},
- {freq:s.lp,label:'LPF',dash:[5,4]}
+ {freq:s.hp,label:'HPF',dash:[],active:s.hpOn!==false},
+ {freq:s.lp,label:'LPF',dash:[5,4],active:s.lpOn!==false}
 ].forEach(m=>{
  const x=X(m.freq);
 
  c.beginPath();
- c.strokeStyle=markerColor;
+ c.strokeStyle=m.active?markerColor:'#64748b';
  c.lineWidth=1.5;
  c.setLineDash(m.dash);
  c.moveTo(x,T);
@@ -1060,7 +1055,7 @@ c.save();
  c.stroke();
 
  c.setLineDash([]);
- c.fillStyle=markerColor;
+ c.fillStyle=m.active?markerColor:'#64748b';
  c.font='bold 10px Arial';
  c.fillText(m.label+' '+m.freq+' Hz',
   Math.min(x+4,W-85),T+12+(m.label==='LPF'?14:0));
