@@ -1244,9 +1244,37 @@ $('eqFlat').onclick=()=>{
  });
  updateEQ();
 };
-$('master').oninput=e=>{if(masterGain)masterGain.gain.setTargetAtTime(dbLin(+e.target.value),ctx.currentTime,.02);$('masterVal').textContent=e.target.value+' dB'};
-$('limiter').oninput=e=>{if(limiter)limiter.threshold.setTargetAtTime(+e.target.value,ctx.currentTime,.02);$('limVal').textContent=e.target.value+' dB'};
-$('ratio').oninput=e=>{if(compressor)compressor.ratio.setTargetAtTime(+e.target.value,ctx.currentTime,.02);$('compVal').textContent=e.target.value+':1'};
+const masterEl = $('master');
+if (masterEl) {
+  masterEl.oninput = e => {
+    if (masterGain && ctx) {
+      masterGain.gain.setTargetAtTime(
+        dbLin(+e.target.value), ctx.currentTime, .02
+      );
+    }
+    if ($('masterVal')) $('masterVal').textContent = e.target.value + ' dB';
+  };
+}
+
+const limiterEl = $('limiter');
+if (limiterEl) {
+  limiterEl.oninput = e => {
+    if (limiter && ctx) {
+      limiter.threshold.setTargetAtTime(+e.target.value, ctx.currentTime, .02);
+    }
+    if ($('limVal')) $('limVal').textContent = e.target.value + ' dB';
+  };
+}
+
+const ratioEl = $('ratio');
+if (ratioEl) {
+  ratioEl.oninput = e => {
+    if (compressor && ctx) {
+      compressor.ratio.setTargetAtTime(+e.target.value, ctx.currentTime, .02);
+    }
+    if ($('compVal')) $('compVal').textContent = e.target.value + ':1';
+  };
+  }
 function resetStereoMeters(){
   ['inDbL','inDbR','outDbL','outDbR'].forEach(id=>{
     $(id).textContent='-∞ dB';
