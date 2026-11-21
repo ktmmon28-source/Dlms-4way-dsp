@@ -1525,7 +1525,38 @@ if ('serviceWorker' in navigator) {
   // Buat halaman OUTPUT tanpa menggandakan kontrol atau ID.
   const output = document.createElement('section');
   output.className = 'panel full';
-  output.innerHTML = '<h2>OUTPUT — STEREO L/R</h2><div id="dlms-output-controls"></div><div class="stereo-meters" id="dlms-output-meters"></div>';
+  output.innerHTML = `
+<h2>OUTPUT — STEREO L/R</h2>
+
+<div id="dlms-output-controls">
+  <div class="control">
+    <label>
+      MASTER OUTPUT
+      <span id="masterVal">0 dB</span>
+    </label>
+    <input id="master" type="range"
+      min="-60" max="6" step="0.1" value="0">
+  </div>
+</div>
+
+<div class="stereo-meters" id="dlms-output-meters"></div>
+`;
+  output.addEventListener('input', e => {
+  if (e.target.id === 'master') {
+    const value = Number(e.target.value);
+
+    if (masterGain && ctx) {
+      masterGain.gain.setTargetAtTime(
+        dbLin(value),
+        ctx.currentTime,
+        0.02
+      );
+    }
+
+    const display = output.querySelector('#masterVal');
+    if (display) display.textContent = value.toFixed(1) + ' dB';
+  }
+});
 
   main.insertBefore(output, player.nextSibling);
 
