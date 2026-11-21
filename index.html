@@ -1380,8 +1380,24 @@ readStereoMeter(inputMeterR,'inDbR','inMeterR');
 // OUTPUT STEREO
 readStereoMeter(outputMeterL,'outDbL','outMeterL');
 readStereoMeter(outputMeterR,'outDbR','outMeterR');
- const c=$('spectrum'),g=c.getContext('2d'),data=new Uint8Array(analyser.frequencyBinCount);analyser.getByteFrequencyData(data);g.clearRect(0,0,c.width,c.height);g.strokeStyle='#36d6e7';g.lineWidth=2;g.beginPath();
- for(let i=0;i<data.length;i++){let x=i/data.length*c.width,y=c.height-(data[i]/255)*c.height;if(i===0)g.moveTo(x,y);else g.lineTo(x,y)}g.stroke();
+ const c=$('spectrum');
+if(c){
+  const g=c.getContext('2d');
+  const data=new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteFrequencyData(data);
+  g.clearRect(0,0,c.width,c.height);
+  g.strokeStyle='#36d6e7';
+  g.lineWidth=2;
+  g.beginPath();
+  for(let i=0;i<data.length;i++){
+    let x=i/data.length*c.width;
+    let y=c.height-(data[i]/255)*c.height;
+    if(i===0)g.moveTo(x,y);
+    else g.lineTo(x,y);
+  }
+  g.stroke();
+  }
+ 
  raf=requestAnimationFrame(draw);
 }
 
