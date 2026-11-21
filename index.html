@@ -628,6 +628,7 @@ const $ = id => document.getElementById(id);
 const freqs=[31,63,125,250,500,1000,2000,4000,8000,16000];
 let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedAt=0, pausedAt=0;
   let mp3Tracks = [], currentTrackIndex = -1, mp3DB = null;
+  let mp3AudioCache = new Map();
 let inputGain, eqNodes=[], splitNodes=[], channelNodes=[], masterGain, compressor, limiter, analyser, outputGain, raf=0;
 let inputMeterL, inputMeterR;
 let outputMeterL, outputMeterR;
@@ -744,9 +745,20 @@ async function loadMP3Track(index){
     const saved=await getSavedMP3File(track.id);
     if(!saved)return;
 
-    fileBuffer=await ctx.decodeAudioData(
-      await saved.blob.arrayBuffer()
-    );
+    if(mp3AudioCache.has(track.id)){
+  fileBuffer=mp3AudioCache.get(track.id);
+}else{
+  fileBuffer=await ctx.decodeAudioData(
+    await saved.blob.arrayBuffer()
+  );
+
+  mp3AudioCache.set(track.id,fileBuffer);
+
+  if(mp3AudioCache.size>3){
+    const firstKey=mp3AudioCache.keys().next().value;
+    mp3AudioCache.delete(firstKey);
+  }
+}
 
     currentTrackIndex=index;
     pausedAt=0;
