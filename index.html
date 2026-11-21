@@ -460,6 +460,18 @@ body {
 <button id="play" class="primary" disabled>▶ PLAY</button><button id="stop" disabled>■ STOP</button>
 </div>
 <div class="file-name" id="fileName" style="margin-top:9px">Belum ada file dipilih</div>
+  <div class="row" style="margin-top:12px">
+  <button id="prevTrack">⏮ PREV</button>
+  <button id="nextTrack">NEXT ⏭</button>
+</div>
+
+<div id="mp3Playlist"
+  style="margin-top:12px;padding:10px;border:1px solid #334155;border-radius:10px">
+  <b>PLAYLIST MP3</b>
+  <div id="mp3List" class="note" style="margin-top:8px">
+    Belum ada lagu tersimpan.
+  </div>
+</div>
 <div class="transport"><div class="time" id="clock">00:00 / 00:00</div><button id="mute">MUTE</button><label class="switch"><input id="loop" type="checkbox"> LOOP</label></div>
 <input id="seek" class="seek" type="range" min="0" max="1000" value="0" disabled>
 <!-- AS AUDIO STEREO VU METER -->
@@ -1323,7 +1335,7 @@ async function startAt(offset=0){
   }
   
 $('audioFile').onchange=async e=>{
- alert('EVENT MP3 TERPANGGIL');
+ 
  const f=e.target.files[0];if(!f)return;
  try{setStatus('MEMUAT FILE');await initAudio();const buf=await f.arrayBuffer();fileBuffer=await ctx.decodeAudioData(buf);$('fileName').textContent=f.name+' • '+fileBuffer.numberOfChannels+' ch • '+(fileBuffer.sampleRate/1000).toFixed(1)+' kHz';$('play').disabled=false;$('stop').disabled=false;$('seek').disabled=false;$('seek').value=0;$('clock').textContent='00:00 / '+fmtTime(fileBuffer.duration);pausedAt=0;setStatus('FILE SIAP');}
  catch(err){setStatus('GAGAL MEMUAT FILE',false);alert('File tidak dapat dibuka: '+err.message)}
