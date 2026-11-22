@@ -884,11 +884,17 @@ $('channels').innerHTML=names.map((name,i)=>`
   </label>
  </div>
 `).join('');
-alert(
-  'GAIN: '+document.querySelectorAll('#channels [data-p="gain"]').length+
-  ' | DELAY: '+document.querySelectorAll('#channels [data-p="delay"]').length+
-  ' | POLARITY: '+document.querySelectorAll('#channels [data-p="pol"]').length
-);
+const testBox = document.createElement('p');
+testBox.style.color = '#22d3ee';
+testBox.textContent =
+  'TES CHANNEL: GAIN ' +
+  document.querySelectorAll('#channels [data-p="gain"]').length +
+  ' | DELAY ' +
+  document.querySelectorAll('#channels [data-p="delay"]').length +
+  ' | POLARITY ' +
+  document.querySelectorAll('#channels [data-p="pol"]').length;
+
+$('channels').appendChild(testBox);
 }
 makeUI();
   // PULIHKAN PLAYLIST MP3 SAAT DLMS DIBUKA
