@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dlms-as-audio-v1';
+const CACHE_NAME = 'dlms-as-audio-v2';
 const APP_FILES = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', event => {
