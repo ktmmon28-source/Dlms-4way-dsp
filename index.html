@@ -674,6 +674,130 @@ input[type="range"] {
   }
 }
 
+/* =================================
+   AS AUDIO - PROFESSIONAL DYNAMICS
+   ================================= */
+
+.panel.full:has(#dyn-compressor-toggle) {
+  background: linear-gradient(145deg, #151111, #090909);
+  border: 1px solid #542126;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px #00000066;
+}
+
+.panel.full:has(#dyn-compressor-toggle) > h2 {
+  color: #ff343b;
+  letter-spacing: 1.2px;
+  border-bottom: 1px solid #542126;
+  padding-bottom: 12px;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .grid2 {
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .grid2 > .control {
+  background: linear-gradient(155deg, #211515, #0b0b0b);
+  border: 1px solid #67252b;
+  border-radius: 12px;
+  padding: 13px;
+  box-shadow: inset 0 1px 0 #ffffff0a;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .channelhead {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #542126;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .channelhead strong {
+  color: #ff454b;
+  font-size: 14px;
+  letter-spacing: 1.2px;
+}
+
+.panel.full:has(#dyn-compressor-toggle) button {
+  background: #300d10;
+  border: 1px solid #e02028;
+  color: #ffffff;
+  border-radius: 7px;
+  font-weight: 800;
+}
+
+.panel.full:has(#dyn-compressor-toggle) button.primary {
+  background: #b81720;
+  border-color: #ff343b;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .grid2 label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 13px 0 5px;
+  color: #bcbcbc;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel.full:has(#dyn-compressor-toggle) label span {
+  color: #ff454b;
+  font-family: monospace;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .grid2 input[type="range"] {
+  width: 100%;
+  accent-color: #ed252d;
+  cursor: pointer;
+}
+
+.panel.full:has(#dyn-compressor-toggle) > .control {
+  margin-top: 14px;
+  padding: 14px;
+  background: linear-gradient(145deg, #171212, #090909);
+  border: 1px solid #542126;
+  border-radius: 12px;
+}
+
+.panel.full:has(#dyn-compressor-toggle) > .control > strong {
+  color: #ff454b;
+  letter-spacing: 1px;
+}
+
+.panel.full:has(#dyn-compressor-toggle) > .control label {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0 6px;
+  color: #d0d0d0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .meter {
+  height: 16px;
+  margin: 6px 0 12px;
+  background: #080808;
+  border: 1px solid #542126;
+  border-radius: 5px;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .meter > i {
+  background: linear-gradient(90deg, #35c878, #a8d94b, #ff343b);
+  box-shadow: 0 0 8px #35c87866;
+}
+
+.panel.full:has(#dyn-compressor-toggle) .note {
+  color: #999999;
+}
+
+@media (max-width: 520px) {
+  .panel.full:has(#dyn-compressor-toggle) .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
