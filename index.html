@@ -2119,11 +2119,14 @@ function updateDynamicsMeters(){
 requestAnimationFrame(updateDynamicsMeters);
   return p;
 })();
-  const spectrum = findPanel('05 / SPECTRUM') || (() => {
-  const p = document.createElement('section');
-  p.className = 'panel full';
-  p.innerHTML = '<h2>05 / SPECTRUM</h2><p class="note">Panel SPECTRUM sedang dipulihkan.</p>';
-  main.appendChild(p);
+    p.innerHTML = `
+    <h2>05 / REALTIME AUDIO SPECTRUM</h2>
+    <canvas id="spectrum" width="900" height="220"
+      style="width:100%;height:180px;display:block;background:#080e16;border:1px solid #29485b;border-radius:10px">
+    </canvas>
+    <p class="note">REALTIME FREQUENCY ANALYZER • Putar MP3 untuk melihat grafik.</p>
+  `;
+    main.appendChild(p);
   return p;
 })();
   const preset = findPanel('06 / PRESET');
