@@ -2415,7 +2415,8 @@ function snapshot(){
  return {
   eq:[...document.querySelectorAll('[data-eq]')].map(e=>+e.value),
   channels:channelSettings.map(x=>({...x})),
-  master:+$('master').value,
+  masterLeft:+$('masterLeft').value,
+masterRight:+$('masterRight').value,
   dynamics:window.getDLMSDynamicsSettings()
  };
   }
