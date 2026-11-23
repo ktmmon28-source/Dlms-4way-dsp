@@ -1604,6 +1604,26 @@ outputGain.connect(ctx.destination);
 window.setDLMSMaster = function(db) {
   if (masterGain && ctx) {
     masterGain.gain.setTargetAtTime(
+      1,
+      ctx.currentTime,
+      0.02
+    );
+  }
+};
+
+window.setDLMSMasterLeft = function(db) {
+  if (masterLeftGain && ctx) {
+    masterLeftGain.gain.setTargetAtTime(
+      Math.pow(10, Number(db) / 20),
+      ctx.currentTime,
+      0.02
+    );
+  }
+};
+
+window.setDLMSMasterRight = function(db) {
+  if (masterRightGain && ctx) {
+    masterRightGain.gain.setTargetAtTime(
       Math.pow(10, Number(db) / 20),
       ctx.currentTime,
       0.02
@@ -1995,15 +2015,28 @@ $('eqFlat').onclick=()=>{
  });
  updateEQ();
 };
-const masterEl = $('master');
-if (masterEl) {
-  masterEl.oninput = e => {
-    if (masterGain && ctx) {
-      masterGain.gain.setTargetAtTime(
-        dbLin(+e.target.value), ctx.currentTime, .02
-      );
+const masterLeftEl = $('masterLeft');
+const masterRightEl = $('masterRight');
+
+if (masterLeftEl) {
+  masterLeftEl.oninput = e => {
+    if (window.setDLMSMasterLeft) {
+      window.setDLMSMasterLeft(e.target.value);
     }
-    if ($('masterVal')) $('masterVal').textContent = e.target.value + ' dB';
+    if ($('masterLeftVal')) {
+      $('masterLeftVal').textContent = e.target.value + ' dB';
+    }
+  };
+}
+
+if (masterRightEl) {
+  masterRightEl.oninput = e => {
+    if (window.setDLMSMasterRight) {
+      window.setDLMSMasterRight(e.target.value);
+    }
+    if ($('masterRightVal')) {
+      $('masterRightVal').textContent = e.target.value + ' dB';
+    }
   };
 }
 
