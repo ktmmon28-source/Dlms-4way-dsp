@@ -1863,24 +1863,59 @@ $('prevYoutube').onclick = ()=>{
 
   $('loadYoutube').click();
 };
-function snapshot(){return {eq:[...document.querySelectorAll('[data-eq]')].map(e=>+e.value),channels:channelSettings,master:+$('master').value,limiter:+$('limiter').value,ratio:+$('ratio').value}}
+function snapshot(){
+ return {
+  eq:[...document.querySelectorAll('[data-eq]')].map(e=>+e.value),
+  channels:channelSettings.map(x=>({...x})),
+  master:+$('master').value,
+  dynamics:window.getDLMSDynamicsSettings()
+ };
+  }
+function applyPreset(p){
 function applyPreset(p){
  if(!p)return;
- document.querySelectorAll('[data-eq]').forEach((e,i)=>e.value=p.eq?.[i]??0);updateEQ();
- const savedChannels=
- Array.isArray(p.channels)&&p.channels.length===2
- ? p.channels : defaults;
 
-channelSettings=defaults.map((d,i)=>({
- ...d,
- ...(savedChannels[i]||{}),
- hpOn:savedChannels[i]?.hpOn??true,
- lpOn:savedChannels[i]?.lpOn??true
-}));
- channelSettings.forEach((s,i)=>{let card=document.querySelector(`[data-ch="${i}"]`);Object.keys(s).forEach(k=>{let el=card.querySelector(`[data-p="${k}"]`);if(el){if(el.type==='checkbox')el.checked=!!s[k];else el.value=s[k]}});updateChannel(i)});
- $('master').value=p.master??0;$('limiter').value=p.limiter??-1;$('ratio').value=p.ratio??4;
- $('master').dispatchEvent(new Event('input'));$('limiter').dispatchEvent(new Event('input'));$('ratio').dispatchEvent(new Event('input'));
-}
+ document.querySelectorAll('[data-eq]').forEach((e,i)=>{
+  e.value=p.eq?.[i]??0;
+ });
+ updateEQ();
+
+ const savedChannels=
+  Array.isArray(p.channels)&&p.channels.length===2
+  ?p.channels:defaults;
+
+ channelSettings=defaults.map((d,i)=>({
+  ...d,
+  ...(savedChannels[i]||{}),
+  hpOn:savedChannels[i]?.hpOn??true,
+  lpOn:savedChannels[i]?.lpOn??true
+ }));
+
+ channelSettings.forEach((s,i)=>{
+  let card=document.querySelector(`[data-ch="${i}"]`);
+  if(!card)return;
+  Object.keys(s).forEach(k=>{
+   let el=card.querySelector(`[data-p="${k}"]`);
+   if(el){
+    if(el.type==='checkbox')el.checked=!!s[k];
+    else el.value=s[k];
+   }
+  });
+  updateChannel(i);
+ });
+
+ $('master').value=p.master??0;
+ $('master').dispatchEvent(new Event('input'));
+
+ if(p.dynamics){
+  window.setDLMSDynamicsPreset(p.dynamics);
+ }else{
+  if(Number.isFinite(Number(p.ratio)))
+   window.setDLMSDynamics('compressor','ratio',Number(p.ratio));
+  if(Number.isFinite(Number(p.limiter)))
+   window.setDLMSDynamics('limiter','threshold',Number(p.limiter));
+ }
+    }
 $('savePreset').onclick=()=>{
  const slot=$('presetSlot').value;
  localStorage.setItem(
