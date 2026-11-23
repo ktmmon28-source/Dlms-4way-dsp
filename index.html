@@ -2026,11 +2026,51 @@ if ('serviceWorker' in navigator) {
 
 </div>
 
+<div class="control">
+  <strong>GAIN REDUCTION METER</strong>
+
+  <label>COMPRESSOR GR
+    <span id="dyn-compressor-gr-value">0 dB</span>
+  </label>
+  <div class="meter">
+    <div id="dyn-compressor-gr" style="width:0%;height:100%;"></div>
+  </div>
+
+  <label>LIMITER GR
+    <span id="dyn-limiter-gr-value">0 dB</span>
+  </label>
+  <div class="meter">
+    <div id="dyn-limiter-gr" style="width:0%;height:100%;"></div>
+  </div>
+</div>
+
 <p class="note">
   COMPRESSOR / LIMITER STEREO PROCESSING
 </p>
-`;
+
   main.appendChild(p);
+  // REALTIME DYNAMICS GAIN REDUCTION METER
+function updateDynamicsMeters(){
+  const meters=window.getDLMSDynamicsMeters();
+
+  [
+    ['compressor',meters.compressor],
+    ['limiter',meters.limiter]
+  ].forEach(([name,reduction])=>{
+    const db=Math.max(0,-reduction);
+    const percent=Math.min(100,(db/24)*100);
+
+    const bar=document.getElementById('dyn-'+name+'-gr');
+    const value=document.getElementById('dyn-'+name+'-gr-value');
+
+    if(bar)bar.style.width=percent+'%';
+    if(value)value.textContent=db.toFixed(1)+' dB';
+  });
+
+  requestAnimationFrame(updateDynamicsMeters);
+}
+
+requestAnimationFrame(updateDynamicsMeters);
   return p;
 })();
   const spectrum = findPanel('05 / SPECTRUM') || (() => {
