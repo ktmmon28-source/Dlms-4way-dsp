@@ -655,6 +655,85 @@ const defaults=[
  {hp:25,lp:18000,gain:0,delay:0,pol:false}
 ];
 let channelSettings=defaults.map(x=>({...x}));
+  const dynamicsSettings = {
+  compressorEnabled:true,
+  limiterEnabled:true,
+  compressor:{threshold:-18,knee:6,ratio:4,attack:.005,release:.15},
+  limiter:{threshold:-1,knee:0,ratio:20,attack:.001,release:.08}
+};
+
+function applyDynamicsParams(){
+  if(!ctx)return;
+  const now=ctx.currentTime;
+  if(compressor){
+    Object.entries(dynamicsSettings.compressor).forEach(([k,v])=>{
+      compressor[k].setTargetAtTime(v,now,.02);
+    });
+  }
+  if(limiter){
+    Object.entries(dynamicsSettings.limiter).forEach(([k,v])=>{
+      limiter[k].setTargetAtTime(v,now,.02);
+    });
+  }
+}
+
+function routeDynamics(){
+  if(!ctx||!masterGain||!compressor||!limiter||!outputMeterSplit||!analyser)return;
+  masterGain.disconnect();
+  compressor.disconnect();
+  limiter.disconnect();
+  let node=masterGain;
+  if(dynamicsSettings.compressorEnabled){node.connect(compressor);node=compressor;}
+  if(dynamicsSettings.limiterEnabled){node.connect(limiter);node=limiter;}
+  node.connect(outputMeterSplit);
+  node.connect(analyser);
+}
+
+window.setDLMSDynamics=function(group,param,value){
+  if(!dynamicsSettings[group]||!(param in dynamicsSettings[group]))return;
+  const n=Number(value);
+  if(!Number.isFinite(n))return;
+  dynamicsSettings[group][param]=(param==='attack'||param==='release')?n/1000:n;
+  applyDynamicsParams();
+  const out=document.getElementById('dyn-'+group+'-'+param+'-value');
+  if(out)out.textContent=(param==='attack'||param==='release')?n+' ms':(param==='threshold'||param==='knee')?n+' dB':n+':1';
+};
+
+window.setDLMSDynamicsEnabled=function(group,enabled){
+  if(group!=='compressor'&&group!=='limiter')return;
+  dynamicsSettings[group+'Enabled']=!!enabled;
+  routeDynamics();
+  const btn=document.getElementById('dyn-'+group+'-toggle');
+  if(btn){btn.textContent=enabled?'ON':'OFF';btn.classList.toggle('primary',!!enabled);}
+};
+
+window.toggleDLMSDynamics=function(group){
+  window.setDLMSDynamicsEnabled(group,!dynamicsSettings[group+'Enabled']);
+};
+
+window.getDLMSDynamicsSettings=function(){
+  return JSON.parse(JSON.stringify(dynamicsSettings));
+};
+
+window.getDLMSDynamicsMeters=function(){
+  return {compressor:compressor?compressor.reduction:0,limiter:limiter?limiter.reduction:0};
+};
+
+window.setDLMSDynamicsPreset=function(saved){
+  if(!saved)return;
+  ['compressor','limiter'].forEach(group=>{
+    if(saved[group]){
+      Object.keys(dynamicsSettings[group]).forEach(param=>{
+        const n=Number(saved[group][param]);
+        if(Number.isFinite(n))dynamicsSettings[group][param]=n;
+      });
+    }
+    if(typeof saved[group+'Enabled']==='boolean')
+      dynamicsSettings[group+'Enabled']=saved[group+'Enabled'];
+  });
+  applyDynamicsParams();
+  routeDynamics();
+};
 const dbLin=db=>Math.pow(10,db/20);
 const fmtTime=s=>{s=Math.max(0,Math.floor(s||0));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
   // PENYIMPANAN PLAYLIST MP3
@@ -1029,20 +1108,9 @@ invert.connect(busAnalyser);
 // MASTER DAN DYNAMICS
 masterGain=ctx.createGain();
 masterGain.gain.value=1;
-
 compressor=ctx.createDynamicsCompressor();
-compressor.threshold.value=-18;
-compressor.knee.value=6;
-compressor.ratio.value=4;
-compressor.attack.value=.005;
-compressor.release.value=.15;
-
 limiter=ctx.createDynamicsCompressor();
-limiter.threshold.value=-1;
-limiter.knee.value=0;
-limiter.ratio.value=20;
-limiter.attack.value=.001;
-limiter.release.value=.08;
+applyDynamicsParams();
 
 analyser=ctx.createAnalyser();
 analyser.fftSize=1024;
@@ -1050,11 +1118,9 @@ analyser.fftSize=1024;
 outputGain=ctx.createGain();
 outputGain.gain.value=1;
 
-
 // OUTPUT STEREO L/R
 stereoMerge.connect(masterGain);
-masterGain.connect(compressor);
-compressor.connect(limiter);
+
 // OUTPUT STEREO METER L/R
 outputMeterSplit=ctx.createChannelSplitter(2);
 outputMeterL=ctx.createAnalyser();
@@ -1063,12 +1129,12 @@ outputMeterR=ctx.createAnalyser();
 outputMeterL.fftSize=256;
 outputMeterR.fftSize=256;
 
-limiter.connect(outputMeterSplit);
 outputMeterSplit.connect(outputMeterL,0);
 outputMeterSplit.connect(outputMeterR,1);
 
-// Jalur audio utama tetap seperti semula
-limiter.connect(analyser);
+// Jalur audio utama dengan kontrol Dynamics
+routeDynamics();
+
 analyser.connect(outputGain);
 outputGain.connect(ctx.destination);
 window.setDLMSMaster = function(db) {
