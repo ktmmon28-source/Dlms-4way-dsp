@@ -798,6 +798,99 @@ input[type="range"] {
   }
 }
 
+/* =================================
+   AS AUDIO - PROFESSIONAL OUTPUT
+   ================================= */
+
+.panel.full:has(#dlms-output-controls) {
+  background: linear-gradient(145deg, #151111, #090909);
+  border: 1px solid #542126;
+  border-radius: 14px;
+  box-shadow: 0 5px 18px #00000066;
+}
+
+.panel.full:has(#dlms-output-controls) > h2 {
+  color: #ff343b;
+  letter-spacing: 1.2px;
+  border-bottom: 1px solid #542126;
+  padding-bottom: 12px;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-controls .control {
+  background: linear-gradient(145deg, #211515, #0b0b0b);
+  border: 1px solid #67252b;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 12px 0;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-controls label {
+  color: #eeeeee;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.panel.full:has(#dlms-output-controls) #masterVal {
+  color: #ff454b;
+  font-family: monospace;
+  font-size: 17px;
+}
+
+.panel.full:has(#dlms-output-controls) #master {
+  width: 100%;
+  accent-color: #ed252d;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-meters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-meters .meter-panel {
+  background: linear-gradient(155deg, #211515, #0b0b0b);
+  border: 1px solid #67252b;
+  border-radius: 12px;
+  padding: 13px;
+  min-width: 0;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-meters .top label {
+  color: #ff454b;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-meters .value {
+  color: #eeeeee;
+  font-family: monospace;
+  font-weight: 800;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-meters .meter {
+  height: 17px;
+  margin-top: 9px;
+  background: #080808;
+  border: 1px solid #542126;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.panel.full:has(#dlms-output-controls) #dlms-output-meters .meter > i {
+  background: linear-gradient(90deg, #35c878, #a8d94b, #ff343b);
+  box-shadow: 0 0 8px #35c87866;
+}
+
+@media (max-width: 520px) {
+  .panel.full:has(#dlms-output-controls) #dlms-output-meters {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
