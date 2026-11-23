@@ -1758,23 +1758,74 @@ readStereoMeter(inputMeterR,'inDbR','inMeterR');
 // OUTPUT STEREO
 readStereoMeter(outputMeterL,'outDbL','outMeterL');
 readStereoMeter(outputMeterR,'outDbR','outMeterR');
- const c=$('spectrum');
+ 
+const c=$('spectrum');
 if(c){
   const g=c.getContext('2d');
   const data=new Uint8Array(analyser.frequencyBinCount);
   analyser.getByteFrequencyData(data);
-  g.clearRect(0,0,c.width,c.height);
-  g.strokeStyle='#36d6e7';
-  g.lineWidth=2;
-  g.beginPath();
-  for(let i=0;i<data.length;i++){
-    let x=i/data.length*c.width;
-    let y=c.height-(data[i]/255)*c.height;
-    if(i===0)g.moveTo(x,y);
-    else g.lineTo(x,y);
+
+  const W=c.width;
+  const H=c.height;
+  const left=48;
+  const top=28;
+  const bottom=195;
+  const bars=64;
+  const segments=18;
+  const segH=6;
+  const segGap=2;
+
+  g.clearRect(0,0,W,H);
+
+  // SKALA dB DI SISI KIRI
+  g.font='11px Arial';
+  g.textAlign='right';
+  g.fillStyle='#aab8c5';
+
+  for(let db=-30;db>=-100;db-=10){
+    const y=top+((-30-db)/70)*(bottom-top);
+    g.fillText(db+' dB',42,y+4);
+
+    g.strokeStyle='#263744';
+    g.lineWidth=1;
+    g.beginPath();
+    g.moveTo(left,y);
+    g.lineTo(W-8,y);
+    g.stroke();
   }
-  g.stroke();
+
+  // LED BAR SPECTRUM
+  const gap=3;
+  const plotW=W-left-10;
+  const barW=(plotW-gap*(bars-1))/bars;
+
+  for(let i=0;i<bars;i++){
+    const bin=Math.floor(
+      Math.pow(i/(bars-1),2.1)*(data.length-1)
+    );
+
+    const level=data[bin]/255;
+    const lit=Math.round(level*segments);
+    const x=left+i*(barW+gap);
+
+    for(let s=0;s<segments;s++){
+      const y=bottom-segH-s*(segH+segGap);
+
+      if(s>=lit) continue;
+
+      if(s<7){
+        g.fillStyle='#22d65b'; // HIJAU
+      }else if(s<13){
+        g.fillStyle='#ffd52a'; // KUNING
+      }else{
+        g.fillStyle='#ff3030'; // MERAH
+      }
+
+      g.fillRect(x,y,barW,segH);
+    }
   }
+}
+
  
  raf=requestAnimationFrame(draw);
 }
