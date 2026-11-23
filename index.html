@@ -1769,18 +1769,6 @@ $('loadYoutube').onclick=()=>{
     'Video siap dimuat. Tekan tombol Play pada pemutar YouTube.';
 };
 
-  const raw=$('youtubeUrl').value;
-  const id=getYouTubeId(raw);
-  if(!id || !/^[A-Za-z0-9_-]{11}$/.test(id)){
-    $('youtubeMessage').textContent='Link tidak dikenali. Gunakan link video YouTube biasa, youtu.be, Shorts, atau Live.';
-    $('youtubeFrameWrap').style.display='none';
-    $('youtubeFrame').src='about:blank';
-    return;
-  }
-  $('youtubeFrame').src='https://www.youtube-nocookie.com/embed/'+id+'?playsinline=1&rel=0';
-  $('youtubeFrameWrap').style.display='block';
-  $('youtubeMessage').textContent='Video siap dimuat. Tekan tombol Play pada pemutar YouTube.';
-};
 $('youtubeUrl').addEventListener('keydown',e=>{if(e.key==='Enter')$('loadYoutube').click()});
 // TOMBOL NEXT YOUTUBE
 $('nextYoutube').onclick = ()=>{
