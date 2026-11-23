@@ -2642,48 +2642,56 @@ requestAnimationFrame(updateDynamicsMeters);
     return;
   }
 
-  // Buat halaman OUTPUT tanpa menggandakan kontrol atau ID.
-  const output = document.createElement('section');
-  output.className = 'panel full';
-  output.innerHTML = `
+  // Buat halaman OUTPUT STEREO L/R
+const output = document.createElement('section');
+output.className = 'panel full';
+
+output.innerHTML = `
 <h2>OUTPUT — STEREO L/R</h2>
 
 <div id="dlms-output-controls">
+
   <div class="control">
     <label>
-      MASTER OUTPUT
-      <span id="masterVal">0 dB</span>
+      MASTER LEFT (L)
+      <span id="masterLeftVal">0.0 dB</span>
     </label>
-    <input id="master" type="range"
-  min="-60" max="6" step="0.1" value="0"
-  oninput="document.getElementById('masterVal').textContent=this.value+' dB'; window.setDLMSMaster(this.value)"
+    <input id="masterLeft" type="range"
+      min="-60" max="6" step="0.1" value="0"
+      oninput="
+        document.getElementById('masterLeftVal').textContent =
+        Number(this.value).toFixed(1) + ' dB';
+        if(window.setDLMSMasterLeft)
+        window.setDLMSMasterLeft(this.value);
+      ">
   </div>
+
+  <div class="control">
+    <label>
+      MASTER RIGHT (R)
+      <span id="masterRightVal">0.0 dB</span>
+    </label>
+    <input id="masterRight" type="range"
+      min="-60" max="6" step="0.1" value="0"
+      oninput="
+        document.getElementById('masterRightVal').textContent =
+        Number(this.value).toFixed(1) + ' dB';
+        if(window.setDLMSMasterRight)
+        window.setDLMSMasterRight(this.value);
+      ">
+  </div>
+
 </div>
 
 <div class="stereo-meters" id="dlms-output-meters"></div>
 `;
-  const masterSlider = output.querySelector('#master');
-const masterDisplay = output.querySelector('#masterVal');
-masterDisplay.textContent = 'KONTROL TERPASANG';
-masterSlider.addEventListener('input', function() {
-  const value = Number(this.value);
 
-  if (masterGain && ctx) {
-    masterGain.gain.setTargetAtTime(
-      dbLin(value),
-      ctx.currentTime,
-      0.02
-    );
-  }
+main.insertBefore(output, player.nextSibling);
 
-  masterDisplay.textContent = value.toFixed(1) + ' dB';
-});
-
-  main.insertBefore(output, player.nextSibling);
-
-  const masterControl = dynamics.querySelector('#master')?.closest('.control');
-  if (masterControl) {
-    output.querySelector('#dlms-output-controls').appendChild(masterControl);
+// Hapus kontrol MASTER lama dari DYNAMICS
+const masterControl = dynamics.querySelector('#master')?.closest('.control');
+if (masterControl) {
+  masterControl.remove();
   }
 
   const meterCards = [...player.querySelectorAll('.meter-panel')];
