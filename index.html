@@ -1088,7 +1088,10 @@ const freqs=[31,63,125,250,500,1000,2000,4000,8000,16000];
 let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedAt=0, pausedAt=0;
   let mp3Tracks = [], currentTrackIndex = -1, mp3DB = null;
   let mp3AudioCache = new Map();
-let inputGain, eqNodes=[], splitNodes=[], channelNodes=[], masterGain, compressor, limiter, analyser, outputGain, raf=0;
+let inputGain, eqNodes=[], splitNodes=[], channelNodes=[];
+let masterGain, masterSplit, masterMerge;
+let masterLeftGain, masterRightGain;
+let compressor, limiter, analyser, outputGain, raf=0;
 let inputMeterL, inputMeterR;
 let outputMeterL, outputMeterR;
 let inputMeterSplit, outputMeterSplit;
@@ -1551,6 +1554,27 @@ invert.connect(busAnalyser);
 // MASTER DAN DYNAMICS
 masterGain=ctx.createGain();
 masterGain.gain.value=1;
+
+// MASTER STEREO SPLIT L/R
+masterSplit=ctx.createChannelSplitter(2);
+masterLeftGain=ctx.createGain();
+masterRightGain=ctx.createGain();
+masterMerge=ctx.createChannelMerger(2);
+
+masterLeftGain.gain.value=1;
+masterRightGain.gain.value=1;
+
+stereoMerge.connect(masterSplit);
+
+masterSplit.connect(masterLeftGain,0);
+masterSplit.connect(masterRightGain,1);
+
+masterLeftGain.connect(masterMerge,0,0);
+masterRightGain.connect(masterMerge,0,1);
+
+masterMerge.connect(masterGain);
+
+// DYNAMICS
 compressor=ctx.createDynamicsCompressor();
 limiter=ctx.createDynamicsCompressor();
 applyDynamicsParams();
@@ -1560,9 +1584,6 @@ analyser.fftSize=1024;
 
 outputGain=ctx.createGain();
 outputGain.gain.value=1;
-
-// OUTPUT STEREO L/R
-stereoMerge.connect(masterGain);
 
 // OUTPUT STEREO METER L/R
 outputMeterSplit=ctx.createChannelSplitter(2);
@@ -1575,7 +1596,7 @@ outputMeterR.fftSize=256;
 outputMeterSplit.connect(outputMeterL,0);
 outputMeterSplit.connect(outputMeterR,1);
 
-// Jalur audio utama dengan kontrol Dynamics
+// JALUR AUDIO UTAMA DENGAN KONTROL DYNAMICS
 routeDynamics();
 
 analyser.connect(outputGain);
