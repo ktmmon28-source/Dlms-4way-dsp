@@ -2452,8 +2452,11 @@ function applyPreset(p){
   updateChannel(i);
  });
 
- $('master').value=p.master??0;
- $('master').dispatchEvent(new Event('input'));
+$('masterLeft').value=p.masterLeft??p.master??0;
+$('masterLeft').dispatchEvent(new Event('input'));
+
+$('masterRight').value=p.masterRight??p.master??0;
+$('masterRight').dispatchEvent(new Event('input'));
 
  if(p.dynamics){
   window.setDLMSDynamicsPreset(p.dynamics);
