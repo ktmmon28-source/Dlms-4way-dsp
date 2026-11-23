@@ -495,6 +495,74 @@ header {
   }
 }
 
+/* =================================
+   AS AUDIO - BLACK & RED THEME
+   ================================= */
+
+:root {
+  --bg: #080808;
+  --panel: #111111;
+  --panel2: #1b1b1b;
+  --line: #383838;
+  --txt: #eeeeee;
+  --muted: #a0a0a0;
+
+  --cyan: #e02028;
+  --accent: #e02028;
+  --red: #e02028;
+  --green: #6ee7a8;
+}
+
+body {
+  background: radial-gradient(
+    ellipse at top,
+    #241012 0%,
+    #090909 55%,
+    #050505 100%
+  );
+  color: var(--txt);
+}
+
+header {
+  background: #101010;
+  border-bottom-color: #6e171b;
+}
+
+.brand small,
+h3 {
+  color: #e02028;
+}
+
+.panel {
+  background: linear-gradient(145deg, #171717, #0b0b0b);
+  border-color: #383838;
+}
+
+.panel h2 {
+  border-bottom-color: #512024;
+}
+
+button.primary {
+  background: linear-gradient(135deg, #9e1018, #ed252d);
+  color: #ffffff;
+  border: 1px solid #ff4148;
+  box-shadow: 0 3px 12px #e0202833;
+}
+
+input[type="range"] {
+  accent-color: #e02028;
+}
+
+.eqband {
+  background: linear-gradient(145deg, #191919, #0d0d0d);
+  border-color: #393939;
+}
+
+.eqband strong,
+.eqband output {
+  color: #ff343b;
+}
+
 </style>
 </head>
 <body>
