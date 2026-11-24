@@ -1102,6 +1102,8 @@ let ctx=null, source=null, fileBuffer=null, playing=false, muted=false, startedA
 let inputGain, eqNodes=[], splitNodes=[], channelNodes=[];
 let masterGain, masterSplit, masterMerge;
 let masterLeftGain, masterRightGain;
+  let masterLeftMuted = false;
+let masterRightMuted = false;
 let compressor, limiter, analyser, outputGain, raf=0;
 let inputMeterL, inputMeterR;
 let outputMeterL, outputMeterR;
@@ -1640,6 +1642,33 @@ window.setDLMSMasterRight = function(db) {
       0.02
     );
   }
+};
+  window.toggleDLMSMuteLeft = function() {
+  masterLeftMuted = !masterLeftMuted;
+
+  if (masterLeftGain && ctx) {
+    masterLeftGain.gain.setTargetAtTime(
+      masterLeftMuted ? 0 : Math.pow(10, Number(document.getElementById('masterLeft').value) / 20),
+      ctx.currentTime,
+      0.02
+    );
+  }
+
+  return masterLeftMuted;
+};
+
+window.toggleDLMSMuteRight = function() {
+  masterRightMuted = !masterRightMuted;
+
+  if (masterRightGain && ctx) {
+    masterRightGain.gain.setTargetAtTime(
+      masterRightMuted ? 0 : Math.pow(10, Number(document.getElementById('masterRight').value) / 20),
+      ctx.currentTime,
+      0.02
+    );
+  }
+
+  return masterRightMuted;
 };
 setStatus('AUDIO ENGINE AKTIF');
 
