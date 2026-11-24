@@ -2477,6 +2477,8 @@ function snapshot(){
   channels:channelSettings.map(x=>({...x})),
   masterLeft:+$('masterLeft').value,
 masterRight:+$('masterRight').value,
+   masterLeftMuted,
+masterRightMuted,
   dynamics:window.getDLMSDynamicsSettings()
  };
   }
@@ -2511,13 +2513,28 @@ function applyPreset(p){
   });
   updateChannel(i);
  });
-
+masterLeftMuted = !!p.masterLeftMuted;
+masterRightMuted = !!p.masterRightMuted;
 $('masterLeft').value=p.masterLeft??p.master??0;
 $('masterLeft').dispatchEvent(new Event('input'));
 
 $('masterRight').value=p.masterRight??p.master??0;
 $('masterRight').dispatchEvent(new Event('input'));
+const leftControl = $('masterLeft').closest('.control');
+const rightControl = $('masterRight').closest('.control');
 
+const leftMuteButton = leftControl?.querySelector('.master-mute-btn');
+const rightMuteButton = rightControl?.querySelector('.master-mute-btn');
+
+if (leftMuteButton) {
+  leftMuteButton.textContent = masterLeftMuted ? 'UNMUTE L' : 'MUTE L';
+  leftMuteButton.classList.toggle('muted', masterLeftMuted);
+}
+
+if (rightMuteButton) {
+  rightMuteButton.textContent = masterRightMuted ? 'UNMUTE R' : 'MUTE R';
+  rightMuteButton.classList.toggle('muted', masterRightMuted);
+  }
  if(p.dynamics){
   window.setDLMSDynamicsPreset(p.dynamics);
  }else{
