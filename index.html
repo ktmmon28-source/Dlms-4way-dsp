@@ -902,6 +902,26 @@ input[type="range"] {
   min-width: 0;
   width: 100%;
   }
+  /* MASTER MUTE BUTTON */
+.master-mute-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+  background: #8f1822;
+  color: #ffffff;
+  border: 1px solid #ff343b;
+  border-radius: 7px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+}
+
+.master-mute-btn.muted {
+  background: #222222;
+  color: #ff4545;
+  border: 1px solid #ff343b;
+  box-shadow: 0 0 9px #ff343b66;
+  }
 </style>
 </head>
 <body>
@@ -1627,7 +1647,7 @@ window.setDLMSMaster = function(db) {
 window.setDLMSMasterLeft = function(db) {
   if (masterLeftGain && ctx) {
     masterLeftGain.gain.setTargetAtTime(
-      Math.pow(10, Number(db) / 20),
+      masterLeftMuted ? 0 : Math.pow(10, Number(db) / 20),
       ctx.currentTime,
       0.02
     );
@@ -1637,7 +1657,7 @@ window.setDLMSMasterLeft = function(db) {
 window.setDLMSMasterRight = function(db) {
   if (masterRightGain && ctx) {
     masterRightGain.gain.setTargetAtTime(
-      Math.pow(10, Number(db) / 20),
+      masterRightMuted ? 0 : Math.pow(10, Number(db) / 20),
       ctx.currentTime,
       0.02
     );
@@ -2708,6 +2728,14 @@ output.innerHTML = `
         if(window.setDLMSMasterLeft)
         window.setDLMSMasterLeft(this.value);
       ">
+      <button type="button" class="master-mute-btn"
+  onclick="
+    const muted = window.toggleDLMSMuteLeft();
+    this.textContent = muted ? 'UNMUTE L' : 'MUTE L';
+    this.classList.toggle('muted', muted);
+  ">
+  MUTE L
+</button>
   </div>
 
   <div class="control">
@@ -2723,6 +2751,14 @@ output.innerHTML = `
         if(window.setDLMSMasterRight)
         window.setDLMSMasterRight(this.value);
       ">
+      <button type="button" class="master-mute-btn"
+  onclick="
+    const muted = window.toggleDLMSMuteRight();
+    this.textContent = muted ? 'UNMUTE R' : 'MUTE R';
+    this.classList.toggle('muted', muted);
+  ">
+  MUTE R
+</button>
   </div>
 
 </div>
